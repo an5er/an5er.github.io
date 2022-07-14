@@ -3,18 +3,10 @@
         <title>All Posts - an5er&#39;s bolg</title>
         <link>http://an5er.xyz/posts/</link>
         <description>All Posts | an5er&#39;s bolg</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Tue, 28 Jun 2022 10:20:40 &#43;0800</lastBuildDate><atom:link href="http://an5er.xyz/posts/" rel="self" type="application/rss+xml" /><item>
-    <title>Hello</title>
-    <link>http://an5er.xyz/posts/hello/</link>
-    <pubDate>Tue, 28 Jun 2022 10:20:40 &#43;0800</pubDate>
-    <author>admin</author>
-    <guid>http://an5er.xyz/posts/hello/</guid>
-    <description><![CDATA[hello world]]></description>
-</item>
-<item>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Fri, 15 Jul 2022 03:38:04 &#43;0800</lastBuildDate><atom:link href="http://an5er.xyz/posts/" rel="self" type="application/rss+xml" /><item>
     <title>CISCN 2022 复现</title>
     <link>http://an5er.xyz/posts/ciscn%E5%A4%8D%E7%8E%B0/</link>
-    <pubDate>Thu, 15 Jul 2021 03:38:04 &#43;0800</pubDate>
+    <pubDate>Fri, 15 Jul 2022 03:38:04 &#43;0800</pubDate>
     <author>admin</author>
     <guid>http://an5er.xyz/posts/ciscn%E5%A4%8D%E7%8E%B0/</guid>
     <description><![CDATA[CISCN 2022 复现 online_crt 考察的点为CVE-2022-1292：不安全的c_rehash文件执行对象的名称如果带有反引号`，则会将其作为命令执行 下载源码可以]]></description>
