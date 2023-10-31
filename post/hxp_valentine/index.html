@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        
+                            src="../../avatar.jpg"
+                        
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">hxp valentine wp</h3>
+            
+            <small class="text-muted">Published March 22, 2023</small>
+        </div>
+
+        <article>
+            <h1 id="hxp-valentine-wp">hxp valentine wp</h1>
+<p>签到就算成功</p>
+<h2 id="challenge">challenge</h2>
+<p>题目关键过滤点在while循环检测ejs的模板语法，如果存在除了复制语法外则返回400</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg/blog/202303221836487.png" alt="image-20230322183606409"></p>
+<h2 id="solve">solve</h2>
+<p>首先查看ejs的渲染函数，根据注释和查看源码，可以知道<code>shallowCopyFromList</code>函数的作用是遍历data中的键值对，如果data中有键名为<code>_OPTS_PASSABLE_WITH_DATA</code>其中一个，则将其复制到<code>opts</code>中</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg/blog/202303221840557.png" alt="image-20230322184026486"></p>
+<p>所以我们现在可以通过data可控以下几个参数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">_OPTS_PASSABLE_WITH_DATA</span> <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;delimiter&#39;</span>, <span style="color:#e6db74">&#39;scope&#39;</span>, <span style="color:#e6db74">&#39;context&#39;</span>, <span style="color:#e6db74">&#39;debug&#39;</span>, <span style="color:#e6db74">&#39;compileDebug&#39;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#39;client&#39;</span>, <span style="color:#e6db74">&#39;_with&#39;</span>, <span style="color:#e6db74">&#39;rmWhitespace&#39;</span>, <span style="color:#e6db74">&#39;strict&#39;</span>, <span style="color:#e6db74">&#39;filename&#39;</span>, <span style="color:#e6db74">&#39;async&#39;</span>];
+</span></span></code></pre></div><p>然后看了下<code>delimiter</code>是模板引擎中选择的控制符号，默认为%，也就是默认我们使用 <code>&lt;% %&gt;</code> 达到使用模板语句的效果，但是完美被前面的while给防御住了，但是我们只用传入的是<code>&lt;$ $&gt;</code>然后让模板引擎可以正常的解析的话我们就可以使用模板语句RCE了，如下是<code>delimiter</code>的复制所以我们的控制符号可以通过<code>opts</code>可控了</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg/blog/202303221843130.png" alt="image-20230322184340053"></p>
+<p>然后检测标签的地方在</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg/blog/202303221854835.png" alt="image-20230322185444762"></p>
+<p>完成绕过，最后避免一下缓存就可以了</p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>
