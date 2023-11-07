@@ -21,7 +21,7 @@ const url = &amp;#34;http://localhost:3000/login&amp;#34;; const requestBody = &
     </item>
     
     <item>
-      <title>Linectf2023 复现</title>
+      <title>lineCTF2023 复现</title>
       <link>http://blog.an4er.top/post/linectf/</link>
       <pubDate>Tue, 11 Apr 2023 00:00:00 +0000</pubDate>
       
@@ -99,6 +99,19 @@ https://portswigger.net/web-security/dom-based/dom-clobbering
 在文中提到超过三层的时候可以使用
 &amp;lt;iframe name=a srcdoc=&amp;#34; &amp;lt;iframe srcdoc=&amp;#39;&amp;lt;a id=c name=d href=cid:Clobbered&amp;gt;test&amp;lt;/a&amp;gt;&amp;lt;a id=c&amp;gt;&amp;#39; name=b&amp;gt;&amp;#34;&amp;gt;&amp;lt;/iframe&amp;gt; &amp;lt;script&amp;gt;setTimeout(()=&amp;gt;alert(a.b.c.d),500)&amp;lt;/script&amp;gt; 因为我们只需要三层，所以我尝试简单改造一下
 &amp;lt;iframe name=a srcdoc=&amp;#34; &amp;lt;iframe srcdoc=&amp;#39;&amp;lt;a id=opts name=cols href=cid:Clobbered&amp;gt;test&amp;lt;/a&amp;gt;&amp;lt;a id=opts&amp;gt;&amp;#39; name=config&amp;gt;&amp;lt;/iframe&amp;gt;&amp;lt;script src=.</description>
+    </item>
+    
+    <item>
+      <title>Go-fastdfs CVE-2023-1800</title>
+      <link>http://blog.an4er.top/post/go-fastdfs-cve-2023-1800/</link>
+      <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/go-fastdfs-cve-2023-1800/</guid>
+      <description>疫情原因，学校提早放假，要求返乡学习。闲来刷博客，看到了茄子师傅的两篇挖go应用的文章，正好前段时间写极客平台，goweb比较熟悉了，就在github找star从高到低的应用来挖。运气好正好碰见这个漏网之鱼 这是一个文件管理的go web应用，能够上传文件，且上传的信息保存在一个自定义的结构体中（一些知名框架比如gin所提供的接收文件上传的地方对于文件名是会进行清洗的
+这里的path和filename都是我们可以自定义的地方，然后保存文件
+所以能达到我们上传文件到目标机子上的任意文件夹下，可以尝试写入ssh key来达到RCE的效果
+提交到huntr后，作者没有回应
+后来就直接开了个issue，然后修复后就去提交了CVE申请，拿到了人生中第一个CVE</description>
     </item>
     
   </channel>
