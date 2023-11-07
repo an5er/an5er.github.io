@@ -126,5 +126,18 @@ https://portswigger.net/web-security/dom-based/dom-clobbering
 后来就直接开了个issue，然后修复后就去提交了CVE申请，拿到了人生中第一个CVE</description>
     </item>
     
+    <item>
+      <title>正则代审github仓库代码</title>
+      <link>http://blog.an4er.top/post/%E6%AD%A3%E5%88%99%E4%BB%A3%E5%AE%A1github%E4%BB%93%E5%BA%93%E4%BB%A3%E7%A0%81/</link>
+      <pubDate>Tue, 29 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/%E6%AD%A3%E5%88%99%E4%BB%A3%E5%AE%A1github%E4%BB%93%E5%BA%93%E4%BB%A3%E7%A0%81/</guid>
+      <description>寒假看到学长发表了一篇他挖到CVE的文章：使用Code Search来挖掘开源项目漏洞，就挺感兴趣的，自己上手玩了一下
+我首先想到的是，去匹配仓库中的一些敏感信息泄露，比如AK，然后就看到了如下有趣的一幕
+然后发现基础漏洞中，好通过正则去批量匹配的就只有SQL了吧，然后就是改改了学长的正则，比如从select 到update delete之类的，又因为那时候Code Search是体验使用，匹配到的只有前五页，所以后面我就大胆的限制了下变量名为query（这变量名绝对是传参可控嘛，还真让我找到一个五百多star的
+代码如下
+后面在数据库里给加个储存桶地址，凑成CTF题了</description>
+    </item>
+    
   </channel>
 </rss>

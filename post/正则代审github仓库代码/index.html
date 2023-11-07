@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+    <link rel="shortcut icon" href="avatar.jpg" />
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle"
+                    
+                        
+                            src="../../avatar.jpg"
+                        
+                    
+                />
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">正则代审github仓库代码</h3>
+            
+            <small class="text-muted">Published November 29, 2022</small>
+        </div>
+
+        <article>
+            <p>寒假看到学长发表了一篇他挖到CVE的文章：<a href="https://afkl.notion.site/Code-Search-df1126b6895f46f1ad01b5d36dba5ffd">使用Code Search来挖掘开源项目漏洞</a>，就挺感兴趣的，自己上手玩了一下</p>
+<p>我首先想到的是，去匹配仓库中的一些敏感信息泄露，比如AK，然后就看到了如下有趣的一幕</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202311071605658.png" alt="image-20231107155421397"></p>
+<p>然后发现基础漏洞中，好通过正则去批量匹配的就只有SQL了吧，然后就是改改了学长的正则，比如从select 到update delete之类的，又因为那时候Code Search是体验使用，匹配到的只有前五页，所以后面我就大胆的限制了下变量名为query（这变量名绝对是传参可控嘛，还真让我找到一个五百多star的</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202311071605374.png" alt="image-20231107155736786"></p>
+<p>代码如下</p>
+<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202311071605982.png" alt="image-20231107155849727"></p>
+<p>后面在数据库里给加个储存桶地址，凑成CTF题了</p>
+
+        </article>
+    </div>
+    <div class="giscus_comments"><script src="https://giscus.app/client.js"
+        data-repo="an5er/an5er.github.io"
+        data-repo-id="R_kgDOKnQBrQ"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOKnQBrc4Cav6q"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="dark"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+    </div>
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>
