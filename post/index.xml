@@ -21,7 +21,7 @@ const url = &amp;#34;http://localhost:3000/login&amp;#34;; const requestBody = &
     </item>
     
     <item>
-      <title>lineCTF2023 复现</title>
+      <title>LineCTF2023 复现</title>
       <link>http://blog.an4er.top/post/linectf/</link>
       <pubDate>Tue, 11 Apr 2023 00:00:00 +0000</pubDate>
       
@@ -41,7 +41,7 @@ Another Secure Store Note 查看附件发现flag放在bot的localStorage中，�
     </item>
     
     <item>
-      <title>hxpCTF valentine WP</title>
+      <title>HxpCTF valentine WP</title>
       <link>http://blog.an4er.top/post/hxp_valentine/</link>
       <pubDate>Wed, 22 Mar 2023 00:00:00 +0000</pubDate>
       
@@ -56,7 +56,7 @@ var _OPTS_PASSABLE_WITH_DATA = [&amp;#39;delimiter&amp;#39;, &amp;#39;scope&amp;
     </item>
     
     <item>
-      <title>diceCTF2023 WP</title>
+      <title>DiceCTF2023 WP</title>
       <link>http://blog.an4er.top/post/dicectf/</link>
       <pubDate>Sun, 12 Feb 2023 00:00:00 +0000</pubDate>
       
@@ -70,7 +70,7 @@ Cookies with longer path are listed before cookies with shorter path. Cookies wh
     </item>
     
     <item>
-      <title>diceCTF2022 复现</title>
+      <title>DiceCTF2022 复现</title>
       <link>http://blog.an4er.top/post/dicectf2022/</link>
       <pubDate>Tue, 31 Jan 2023 00:00:00 +0000</pubDate>
       
@@ -84,7 +84,7 @@ WebAssembly 被设计为可以和 JavaScript 一起协同工作——通过使�
     </item>
     
     <item>
-      <title>idekCTF 2022 XSS</title>
+      <title>IdekCTF 2022 XSS</title>
       <link>http://blog.an4er.top/post/idekxss/</link>
       <pubDate>Wed, 25 Jan 2023 00:00:00 +0000</pubDate>
       
