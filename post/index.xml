@@ -76,7 +76,7 @@ Cookies with longer path are listed before cookies with shorter path. Cookies wh
       
       <guid>http://blog.an4er.top/post/dicectf2022/</guid>
       <description>knock-knock 题目的主要逻辑是：创建一个note会返回这个note在数组中的下标id然后和对应的访问token，然后flag在程序启动的时候就push到了数组中，其下标也就是id应该为0。所以我们为了获取到flag，只要获取到对应的token即可，其中的token是如此生成的
-class Database {constructor() {this.notes = [];this.secret = `secret-${crypto.randomUUID}`;}generateToken(id) {return crypto.createHmac(&amp;#39;sha256&amp;#39;, this.secret).update(id.toString()).digest(&amp;#39;hex&amp;#39;);}} 所以因为我们的目的是要伪造token，所以我们需要知道它的secret，这里的secret使用模板语法，取了crypto的randomUUID值，因为没有用（）调用函数，所以返回的是函数体，也就是固定内容
+class Database { constructor() { this.notes = []; this.secret = `secret-${crypto.randomUUID}`; } generateToken(id) { return crypto .createHmac(&amp;#39;sha256&amp;#39;, this.secret) .update(id.toString()) .digest(&amp;#39;hex&amp;#39;); } } 所以因为我们的目的是要伪造token，所以我们需要知道它的secret，这里的secret使用模板语法，取了crypto的randomUUID值，因为没有用（）调用函数，所以返回的是函数体，也就是固定内容
 blazingfast 简单读一下bot.js发现目的是要XSS，然后查看index.html中执行的js
 WebAssembly.instantiateStreaming(fetch(&amp;#39;/blazingfast.wasm&amp;#39;)).then(({ instance }) =&amp;gt; { blazingfast = instance.exports; document.getElementById(&amp;#39;demo-submit&amp;#39;).onclick = () =&amp;gt; { demo(document.getElementById(&amp;#39;demo&amp;#39;).value); } let query = new URLSearchParams(window.location.search).get(&amp;#39;demo&amp;#39;); if (query) { document.getElementById(&amp;#39;demo&amp;#39;).value = query; demo(query); } }) 这里使用js的api去调用WebAssembly
 WebAssembly 是一种新的编码方式，可以在现代的网络浏览器中运行 － 它是一种低级的类汇编语言，具有紧凑的二进制格式，可以接近原生的性能运行，并为诸如 C / C ++等语言提供一个编译目标，以便它们可以在 Web 上运行。它也被设计为可以与 JavaScript 共存，允许两者一起工作。

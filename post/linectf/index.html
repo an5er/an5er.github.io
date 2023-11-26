@@ -85,22 +85,22 @@
         <article>
             <h2 id="safenote">SafeNote</h2>
 <p>查看路由，发现在admin的controller下存在<code>/feature</code>路由可以执行<code>spel</code>表达式</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241462.png" alt="image-20230327204134114"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047857.png" alt="image-20230327204134114"></p>
 <p>那么问题来到怎么去获得admin的权限，在spel路由的上面有一个</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241822.png" alt="image-20230327214022459"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047780.png" alt="image-20230327214022459"></p>
 <p>如果从请求头中获得的<code>Authorization</code>解码后不为<code>USER</code>即可返回<code>JWT key</code>，尝试删除<code>Authorization</code>，访问，但是被filter给拦住，查看config，有如下匹配</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241026.png" alt="image-20230327213949589"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047609.png" alt="image-20230327213949589"></p>
 <p>符合路径的会在请求到达路由前检查请求头。所以我们需要绕过这个正则，使用%0a可以截断绕过</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241107.png" alt="image-20230327220617335"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047415.png" alt="image-20230327220617335"></p>
 <p>然后利用这key去签名即可</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303280241967.png" alt="image-20230327222710707"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047040.png" alt="image-20230327222710707"></p>
 <h2 id="another-secure-store-note">Another Secure Store Note</h2>
 <p>查看附件发现<code>flag</code>放在<code>bot</code>的<code>localStorage</code>中，然后登录后的用户名中存在<code>XSS</code>，但是被CSP限制了</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303282021757.png" alt="image-20230328202126602"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047768.png" alt="image-20230328202126602"></p>
 <p>我们需要有<code>nonce</code>才能执行XSS，因为<code>nonce</code>是随机生成的，然后访问<code>/profile</code>时会访问<code>/csp.gif</code>刷新<code>nonce</code>，为防止<code>nonce</code>刷新，第一个想到的是去修改它的<code>base uri</code> ，又因为<code>base-uri</code>  是  <code>self</code>，所以使用<code>base</code>设置随意的路径来阻断</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">base</span> <span style="color:#a6e22e">href</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;https://35.200.57.143:11004/a/&#39;</span>&gt;
 </span></span></code></pre></div><p>然后查看前端，为了执行<code>getSettings.js</code>，使用如下一条语句</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303282028700.png" alt="image-20230328202847588"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047500.png" alt="image-20230328202847588"></p>
 <p>我们需要的<code>nonce</code>明文储存在前端，尝试使用<a href="https://book.hacktricks.xyz/pentesting-web/dangling-markup-html-scriptless-injection">Dangling Markup</a>来外带代码，但是更改用户名需要<code>_csrf</code>，所以我们需要最后一步偷到<code>_csrf</code>来串起来。在<code>getSettings.js</code>文件中会为前端填入<code>csrf</code>，所以我们只要执行<code>getSettings.js</code>便能得到对应的<code>_csrf</code>然后直接发送给<code>/porfile</code>即可改名</p>
 <blockquote>
 <p>因为Worker 线程所在的全局对象，与主线程不一样，无法读取主线程所在网页的 DOM 对象，也无法使用<code>document</code>、<code>window</code>、<code>parent</code>这些对象。</p>
@@ -176,7 +176,7 @@
 </span></span><span style="display:flex;"><span>    &lt;/<span style="color:#f92672">script</span>&gt;
 </span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">body</span>&gt;
 </span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;
-</span></span></code></pre></div><p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202303290035812.png" alt="image-20230329003530662"></p>
+</span></span></code></pre></div><p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262047348.png" alt="image-20230329003530662"></p>
 
         </article>
     </div>

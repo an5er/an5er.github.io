@@ -85,11 +85,11 @@
         <article>
             <p>寒假看到学长发表了一篇他挖到CVE的文章：<a href="https://afkl.notion.site/Code-Search-df1126b6895f46f1ad01b5d36dba5ffd">使用Code Search来挖掘开源项目漏洞</a>，就挺感兴趣的，自己上手玩了一下</p>
 <p>我首先想到的是，去匹配仓库中的一些敏感信息泄露，比如AK，然后就看到了如下有趣的一幕</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202311071605658.png" alt="image-20231107155421397"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262040369.png" alt="image-20231107155421397"></p>
 <p>然后发现基础漏洞中，好通过正则去批量匹配的就只有SQL了吧，然后就是改改了学长的正则，比如从select 到update delete之类的，又因为那时候Code Search是体验使用，匹配到的只有前五页，所以后面我就大胆的限制了下变量名为query（这变量名绝对是传参可控嘛，还真让我找到一个五百多star的</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202311071605374.png" alt="image-20231107155736786"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262040747.png" alt="202311071605374.png"></p>
 <p>代码如下</p>
-<p><img src="https://cdn.jsdelivr.net/gh/an5er/cloudimg@main/blog/202311071605982.png" alt="image-20231107155849727"></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311262040297.png" alt="image-20231107155849727"></p>
 <p>后面在数据库里给加个储存桶地址，凑成CTF题了</p>
 
         </article>
