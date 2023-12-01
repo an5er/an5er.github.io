@@ -114,7 +114,7 @@ https://portswigger.net/web-security/dom-based/dom-clobbering
     </item>
     
     <item>
-      <title>Go-fastdfs CVE-2023-1800</title>
+      <title>Go-fastdfs Path traversal</title>
       <link>http://blog.an4er.top/post/go-fastdfs-cve-2023-1800/</link>
       <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
       
@@ -123,7 +123,7 @@ https://portswigger.net/web-security/dom-based/dom-clobbering
 这里的path和filename都是我们可以自定义的地方，然后保存文件
 所以能达到我们上传文件到目标机子上的任意文件夹下，可以尝试写入ssh key来达到RCE的效果
 提交到huntr后，作者没有回应
-后来就直接开了个issue，然后修复后就去提交了CVE申请，拿到了人生中第一个CVE</description>
+后来就直接开了个issue，然后修复后就去提交了CVE申请</description>
     </item>
     
     <item>
