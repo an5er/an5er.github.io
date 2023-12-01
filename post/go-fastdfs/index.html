@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+    <link rel="shortcut icon" href="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/avatar.jpg" />
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle" src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/avatar.jpg"/>
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">Go-fastdfs Path traversal</h3>
+            
+            <small class="text-muted">Published December 22, 2022</small>
+        </div>
+
+        <article>
+            <p>疫情原因，学校提早放假，要求返乡学习。闲来刷博客，看到了茄子师傅的两篇挖go应用的文章，正好前段时间写极客平台，goweb比较熟悉了，就在github找star从高到低的应用来挖。运气好正好碰见这个漏网之鱼
+这是一个文件管理的<code>go web</code>应用，能够上传文件，且上传的信息保存在一个自定义的结构体中（一些知名框架比如gin所提供的接收文件上传的地方对于文件名是会进行清洗的</p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311071537800.png" alt="image-20231107153716584"></p>
+<p>这里的path和filename都是我们可以自定义的地方，然后保存文件</p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311071543874.png" alt="image-20231107153910521"></p>
+<p>所以能达到我们上传文件到目标机子上的任意文件夹下，可以尝试写入ssh key来达到RCE的效果</p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311071543341.png" alt="image-20231107154113232"></p>
+<p>提交到huntr后，作者没有回应</p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202311071543450.png" alt="image-20231107154242422"></p>
+<p>后来就直接开了个issue，然后修复后就去提交了CVE申请</p>
+
+        </article>
+    </div>
+    <div class="giscus_comments"><script src="https://giscus.app/client.js"
+        data-repo="an5er/an5er.github.io"
+        data-repo-id="R_kgDOKnQBrQ"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOKnQBrc4Cav6q"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="dark"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+    </div>
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>
