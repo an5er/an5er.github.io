@@ -6,7 +6,20 @@
     <description>Recent content on an4er&#39; blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Oct 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.an4er.top/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 07 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://blog.an4er.top/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>WIZ EKS Cluster GamesCTF WriteUp</title>
+      <link>http://blog.an4er.top/post/wiz-eks-cluster-games-ctf-writeup/</link>
+      <pubDate>Thu, 07 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>http://blog.an4er.top/post/wiz-eks-cluster-games-ctf-writeup/</guid>
+      <description>eksclustergames.com
+Recommended for chrome
+Secret Seeker Jumpstart your quest by listing all the secrets in the cluster. Can you spot the flag among them?
+solver：
+root@wiz-eks-challenge:~# kubectl describe secret log-rotate Name: log-rotate Namespace: challenge1 Labels: &amp;lt;none&amp;gt; Annotations: &amp;lt;none&amp;gt; Type: Opaque Data ==== flag: 52 bytes root@wiz-eks-challenge:~# kubectl get secret log-rotate -o yaml apiVersion: v1 data: flag: d2l6X2Vrc19jaGFsbGVuZ2V7b21nX292ZXJfcHJpdmlsZWdlZF9zZWNyZXRfYWNjZXNzfQ== kind: Secret metadata: creationTimestamp: &amp;#34;2023-11-01T13:02:08Z&amp;#34; name: log-rotate namespace: challenge1 resourceVersion: &amp;#34;890951&amp;#34; uid: 03f6372c-b728-4c5b-ad28-70d5af8d387c type: Opaque Registry Hunt A thing we learned during our research: always check the container registries.</description>
+    </item>
+    
     <item>
       <title>About</title>
       <link>http://blog.an4er.top/about/</link>
