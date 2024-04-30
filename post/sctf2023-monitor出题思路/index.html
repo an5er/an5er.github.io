@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-us"><head>
+    <title>an4er&#39; blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="" />
+
+    
+    
+    
+    <link rel="stylesheet" href="../../css/theme.min.css">
+
+    
+    
+    
+    <link rel="shortcut icon" href="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/avatar.jpg" />
+    
+</head>
+<body>
+        <div id="content" class="mx-auto"><header class="container mt-sm-5 mt-4 mb-4 mt-xs-1">
+    <div class="row">
+        
+        <div class="col-sm-4 col-12 text-sm-right text-center pt-sm-4">
+            <a href="../../" class="text-decoration-none">
+                <img id="home-image" class="rounded-circle" src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/avatar.jpg"/>
+            </a>
+        </div>
+        <div class="col-sm-8 col-12 text-sm-left text-center">
+        
+            <h2 class="m-0 mb-2 mt-4">
+                <a href="../../" class="text-decoration-none">
+                    
+                        an4er
+                    
+                </a>
+            </h2>
+            <p class="text-muted mb-1">
+                
+                    Want to be a Ctfer, Developer, Red Team
+                
+            </p>
+            <ul id="nav-links" class="list-inline mb-2">
+                
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../about/" title="About">About</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../post/" title="Posts">Posts</a>
+                    </li>
+                
+                    <li class="list-inline-item">
+                        <a class="badge badge-white " href="../../friend/" title="Friend">Friend</a>
+                    </li>
+                
+            </ul>
+            <ul id="nav-social" class="list-inline">
+                
+                    <li class="list-inline-item mr-3">
+                        <a href="https://github.com/an5er" target="_blank">
+                            <i class="fab fa-github fa-1x text-muted"></i>
+                        </a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+    <hr />
+</header>
+<div class="container">
+    <div class="pl-sm-2">
+        <div class="mb-3">
+            <h3 class="mb-0">SCTF2023 monitor出题思路</h3>
+            
+            <small class="text-muted">Published December 28, 2023</small>
+        </div>
+
+        <article>
+            <p>拖了好久打算记录一下monitor的出题思路，题目地址在 ： <a href="https://github.com/an5er/MyChallenges/tree/main/2023/sctf">sctf</a> ，仓库里面有一个最开始的demo思路和最终的版本</p>
+<p>思路的来源是当时在打哪场国外的ctf记不太清了。然后在打那场比赛前，在某场比赛中学习到了使用原型链污染去污染fetch去更改请求方式。然后在这场比赛中我尝试使用原型链去污染<code>http.get</code>，发现其是可以去更改的，且和当时文档说的http.get不会去继承原型上的属性所不同的。</p>
+<p>所以我就去看了下<code>http.get</code>的代码和可用的参数，发现了个<code>socketPath</code>挺有意思的，但是最新版本的这参数并不会去继承，但是又发现在linux默认的下载的版本的<code>node</code>是能够污染的，算是个供应链问题？</p>
+<p>也即是我们可用通过原型链污染，可以向监听的<code>socket</code>发送消息，本来想的是对<code>docker deamon</code>的利用，比如通过访问其<code>rest api</code>去重启一个容器，然后那个容器存在任意文件上传，去覆盖docker的启动脚本，但是<code>docker in docker</code>需要特权，是不能保证安全性的。所以临时更改为与redis.sock通信去设置。感觉还是原版含了点算是横移好玩点哈哈哈。</p>
+<p>后来向<code>node</code>提了下这个文件，和<code>ejs</code>有点像，他们认为原型链污染是用户使用的问题，所以我就是改了下文档混了下哈哈哈</p>
+<p><img src="https://blog-1306976828.cos.ap-chengdu.myqcloud.com/blog/202312281620158.png" alt="image-20231228162002707"></p>
+
+        </article>
+    </div>
+    <div class="giscus_comments"><script src="https://giscus.app/client.js"
+        data-repo="an5er/an5er.github.io"
+        data-repo-id="R_kgDOKnQBrQ"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOKnQBrc4Cav6q"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="dark"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+    </div>
+    
+
+            </div>
+        </div><footer class="text-center pb-1">
+</footer>
+</body>
+</html>
