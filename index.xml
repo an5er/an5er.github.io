@@ -30,7 +30,8 @@
 M1sery
 Boogipop
 AmiaaaZ
-Evolution</description>
+Evolution
+Tel</description>
     </item>
     
     <item>
@@ -54,7 +55,8 @@ root@wiz-eks-challenge:~# kubectl describe secret log-rotate Name: log-rotate Na
       <guid>http://blog.an4er.top/about/</guid>
       <description>A novice student
 Syclover@2021
-Discard: an4er#1403</description>
+Discard: an4er#1403
+一些水的漏洞：</description>
     </item>
     
     <item>
